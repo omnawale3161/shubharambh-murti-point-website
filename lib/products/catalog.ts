@@ -1,0 +1,698 @@
+import { Product, ProductCollection } from "./types";
+import { validateProductCatalog } from "./validation";
+
+export const collections: readonly ProductCollection[] = [
+  "Ganpati Murti",
+  "Shivaji Maharaj Murti",
+  "Shiv Murti",
+  "Krishna Murti",
+  "Swami Smarath Murti",
+  "Decorative Spiritual Idols",
+  "Hanuman Murti",
+  "Shree Ram Murti"
+];
+
+const productCatalog: Product[] = [
+  {
+    id: "smp-001",
+    slug: "premium-ganpati-murti-4-inch",
+    name: "Ganpati Bappa",
+    collection: "Ganpati Murti",
+    price: 999,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image: "/assets/shubharambh17.jpg",
+    badge: "Best Seller",
+    description: "A graceful Ganpati murti for home mandir, gifting, and auspicious beginnings."
+  },
+  {
+    id: "smp-002",
+    slug: "shivaji-maharaj-murti-10-inch",
+    name: "Shivaji Maharaj Murti",
+    collection: "Shivaji Maharaj Murti",
+    price: 3000,
+    size: "10 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj13.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-003",
+    slug: "adiyogi-murti-5-inch",
+    name: "Adiyogi Murti",
+    collection: "Shiv Murti",
+    price: 500,
+    size: "5 inch",
+    material: "Hand-painted finish",
+    image: "/assets/adiyogi.jpg",
+    badge: "New Arrival",
+    description: "A detailed Shiv murti with elegant posture and premium festive presentation."
+  },
+  {
+    id: "smp-004",
+    slug: "swami-samarth-blessing-idol-10-inch",
+    name: "Swami Samarth Blessing Idol",
+    collection: "Swami Smarath Murti",
+    price: 3500,
+    size: "12 inch",
+    material: "Resin finish",
+    image: "/assets/swami.jpg",
+    badge: "Gift Pick",
+    description: "A devotional Swami Smarath idol suited for daily prayer, gifting, and spiritual decor."
+  },
+  {
+    id: "smp-005",
+    slug: "hanuman-murti-set-of-3",
+    name: "Hanuman Murti",
+    collection: "Hanuman Murti",
+    price: 550,
+    size: "4 inch",
+    material: "Antique gold finish",
+    image: "/assets/hanuman1.png",
+    badge: "Occasion Ready",
+    description: "A premium decor set for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-006",
+    slug: "shivaji-maharaj-murti-10-inch-2",
+    name: "Shivaji Maharaj Murti",
+    collection: "Shivaji Maharaj Murti",
+    price: 250,
+    size: "4 inch",
+    material: "Hand-painted finish",
+    image:"/assets/maharaj46.png",
+    badge:"Occasion Ready",
+    description: "A premium decor set for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-007",
+    slug: "ganpati-murti-3-inch",
+    name: "Dagdusheth Ganpati",
+    collection: "Ganpati Murti",
+    price:599,
+    size: "3 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa1.jpg",
+    badge:"Occasion Ready",
+    description: "A premium decor set for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-008",
+    slug: "ganpati-murti-4-inch",
+    name: "Ganpati Bappa",
+    collection: "Ganpati Murti",
+    price:599,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa3png.png",
+    badge:"Occasion Ready",
+    description: "A premium decor for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-009",
+    slug: "ganpati-murti-4-inch-2",
+    name: "Shree Ganesh",
+    collection: "Ganpati Murti",
+    price:999,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa5.png",
+    badge:"Occasion Ready",
+    description: "A premium decor for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-010",
+    slug: "hanuman-murti-set-of-3-2",
+    name: " Vijay Maruti Hanuman ",
+    collection: "Hanuman Murti",
+    price: 1400,
+    size: "7 inch",
+    material: "Antique gold finish",
+    image: "/assets/hanuman2.png",
+    badge: "Occasion Ready",
+    description: "A premium decor set for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-011",
+    slug: "hanuman-murti-set-of-3-3",
+    name: "Hanuman Murti",
+    collection: "Hanuman Murti",
+    price: 1299,
+    size: "Set of 3",
+    material: "Antique gold finish",
+    image: "/assets/hanuman3.png",
+    badge: "Occasion Ready",
+    description: "A premium decor set for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-012",
+    slug: "chhatrapati-shivaji-maharaj-10-inch",
+    name: "Bhakti Shakti",
+    collection: "Shivaji Maharaj Murti",
+    price: 2500,
+    size: "11 inch",
+    material: "Stone texture finish",
+    image: "/assets/bhakti shakti.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-013",
+    slug: "chhatrapati-shivaji-maharaj-1-feet",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 2800,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj 15.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-014",
+    slug: "chhatrapati-shivaji-maharaj-12-plus-2-inch",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 2300,
+    size: "12+2 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj 16.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-015",
+    slug: "shiv-pratap-1-feet",
+    name: "Shiv Pratap",
+    collection: "Shivaji Maharaj Murti",
+    price: 1299,
+    size: "5.5 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj1.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-016",
+    slug: "chhatrapati-shivaji-maharaj-1-feet-2",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 2100,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj2.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-017",
+    slug: "chhatrapati-shivaji-maharaj-4-inch",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 1100,
+    size: "4 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj3.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-018",
+    slug: "chhatrapati-shivaji-maharaj-6-inch",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 1500,
+    size: "6 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj3.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-019",
+    slug: "chhatrapati-shivaji-maharaj-6-inch-2",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 1500,
+    size: "6 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj4.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-020",
+    slug: "shiv-shambhu-jiretop-3-inch",
+    name: "Shiv Shambhu Jiretop",
+    collection: "Shivaji Maharaj Murti",
+    price: 900,
+    size: "3.3 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj6.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-021",
+    slug: "jiretop-shivaji-maharaj-4-inch",
+    name: "Jiretop Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 700,
+    size: "4 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj5.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-022",
+    slug: "dhop-talwar-5-inch",
+    name: "Dhop Talwar",
+    collection: "Shivaji Maharaj Murti",
+    price: 900,
+    size: "5 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj7.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+   {
+    id: "smp-023",
+    slug: "dhop-talwar-1-feet",
+    name: "Dhop Talwar",
+    collection: "Shivaji Maharaj Murti",
+    price: 8500,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj7.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+   {
+    id: "smp-024",
+    slug: "chhatrapati-shivaji-maharaj-5-inch",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 900,
+    size: "5 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj12.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-025",
+    slug: "chhatrapati-shivaji-maharaj-6-inch-3",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 1100,
+    size: "10 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj14.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-026",
+    slug: "chhatrapati-shivaji-maharaj-6-inch-4",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 1500,
+    size: "6 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj17.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-027",
+    slug: "chhatrapati-shivaji-maharaj-6-inch-5",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 899,
+    size: "4.5 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj18.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-028",
+    slug: "chhatrapati-shivaji-maharaj-4-inch-2",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 800,
+    size: "4 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj22.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-029",
+    slug: "ashwarud-13-inch",
+    name: "Ashwarud",
+    collection: "Shivaji Maharaj Murti",
+    price: 12000,
+    size: "13 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj24.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+   {
+    id: "smp-030",
+    slug: "ashwarud-7-inch",
+    name: "Ashwarud",
+    collection: "Shivaji Maharaj Murti",
+    price: 2500,
+    size: "7 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj25.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-031",
+    slug: "ashwarud-2-feet",
+    name: "Ashwarud",
+    collection: "Shivaji Maharaj Murti",
+    price: 24000,
+    size: "2 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj25.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-032",
+    slug: "ashwarud-13-inch-2",
+    name: "Ashwarud",
+    collection: "Shivaji Maharaj Murti",
+    price:7500,
+    size: "13 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj27.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+    {
+    id: "smp-033",
+    slug: "rajyogi-4-inch",
+    name: "Rajyogi",
+    collection: "Shivaji Maharaj Murti",
+    price:799,
+    size: "4 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj28.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-034",
+    slug: "chhatrapati-shivaji-maharaj-1-feet-3",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price:5999,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj29.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-035",
+    slug: "gajpati-9-inch",
+    name: "Gajpati",
+    collection: "Shivaji Maharaj Murti",
+    price:5500,
+    size: "9 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj30.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-036",
+    slug: "chhatrapati-shivaji-maharaj-1-feet-4",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price:8999,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj31.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+   {
+    id: "smp-037",
+    slug: "chhatrapati-shivaji-maharaj-1-feet-5",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price:8999,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/maharaj32.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-038",
+    slug: "asanasth-baithak-6-inch",
+    name: "Asanasth Baithak",
+    collection: "Shivaji Maharaj Murti",
+    price:1299,
+    size: "6 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj33.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-039",
+    slug: "asanasth-baithak-10-inch",
+    name: "Asanasth Baithak",
+    collection: "Shivaji Maharaj Murti",
+    price:4999,
+    size: "10 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj33.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-040",
+    slug: "asanasth-baithak-16-inch",
+    name: "Asanasth Baithak",
+    collection: "Shivaji Maharaj Murti",
+    price:8999,
+    size: "16 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj33.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-041",
+    slug: "chhatrapati-shivaji-maharaj-6-inch-6",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 1299,
+    size: "6 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj34.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-042",
+    slug: "chhatrapati-shivaji-maharaj-9-inch",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 2500,
+    size: "9 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj34.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-043",
+    slug: "chhatrapati-shivaji-maharaj-4-inch-3",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 800,
+    size: "4 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj35.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+   {
+    id: "smp-044",
+    slug: "chhatrapati-shivaji-maharaj-10-inch-3",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 800,
+    size: "10 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj32.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors, With LED light"
+  },
+  {
+    id: "smp-045",
+    slug: "chhatrapati-shivaji-maharaj-7-inch-3",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 800,
+    size: "7 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj29.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-046",
+    slug: "dharmaveer-shivaji-maharaj-4-5-inch",
+    name: "Dharmaveer",
+    collection: "Shivaji Maharaj Murti",
+    price: 899,
+    size: "4.5 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj44.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-047",
+    slug: "chhatrapati-shivaji-maharaj-7-inch-4",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 800,
+    size: "7 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj45.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-048",
+    slug: "chhatrapati-shivaji-maharaj-7-inch-5",
+    name: "Chhatrapati Shivaji Maharaj",
+    collection: "Shivaji Maharaj Murti",
+    price: 800,
+    size: "7 inch",
+    material: "Stone texture finish",
+    image: "/assets/maharaj47.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-049",
+    slug: "shree-ram-murti-7-inch",
+    name: "Shree Ram Murti",
+    collection: "Shree Ram Murti",
+    price: 2600,
+    size: "1 feet",
+    material: "Stone texture finish",
+    image: "/assets/ram11.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-050",
+    slug: "shree-ram-murti-8-inch-2",
+    name: "Shree Ram Murti",
+    collection: "Shree Ram Murti",
+    price: 1800,
+    size: "8 inch",
+    material: "Stone texture finish",
+    image: "/assets/ram13.png",
+    badge: "Premium",
+    description: "A peaceful Shivaji Maharaj idol designed for meditation corners, temples, and serene interiors."
+  },
+  {
+    id: "smp-051",
+    slug: "ganpati-murti-4-inch-3",
+    name: "Shree Ganesh",
+    collection: "Ganpati Murti",
+    price:999,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa6.png",
+    badge:"Occasion Ready",
+    description: "A premium decor for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-052",
+    slug: "ganpati-murti-4-inch-4",
+    name: "Shree Ganesh",
+    collection: "Ganpati Murti",
+    price:999,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa7.png",
+    badge:"Occasion Ready",
+    description: "A premium decor for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-053",
+    slug: "ganpati-murti-4-inch-5",
+    name: "Ganpati Bappa",
+    collection: "Ganpati Murti",
+    price:999,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa9.png",
+    badge:"Occasion Ready",
+    description: "A premium decor for festivals, housewarming, office puja, and return gifts."
+  },
+  {
+    id: "smp-054",
+    slug: "ganpati-murti-4-inch-6",
+    name: "Ganpati Bappa",
+    collection: "Ganpati Murti",
+    price:999,
+    size: "4 inch",
+    material: "Marble dust finish",
+    image:"/assets/bappa10.png",
+    badge:"Occasion Ready",
+    description: "A premium decor for festivals, housewarming, office puja, and return gifts."
+  },
+];
+
+export const products = validateProductCatalog(productCatalog, collections);
+
+export function getProductBySlug(slug: string) {
+  return products.find((product) => product.slug === slug);
+}
+
+export function getProductById(id: string) {
+  return products.find((product) => product.id === id);
+}
+
+const legacySlugToProductId = new Map<string, string>([
+  ["premium-ganpati-murti", "smp-001"],
+  ["shivaji-mharaj-murti", "smp-002"],
+  ["shiv-murti", "smp-003"],
+  ["swami-smarath-blessing-idol", "smp-004"],
+  ["hanuman-murti", "smp-005"],
+  ["shivaji-murti", "smp-006"],
+  ["ganpati-murti", "smp-007"],
+  ["ganpati-murti3", "smp-008"],
+  ["ganpati-murti2", "smp-009"],
+  ["hanuman-murti2", "smp-010"],
+  ["hanuman-murti4", "smp-011"],
+  ["shivaji-mharaj-murti1", "smp-012"],
+  ...Array.from({ length: 31 }, (_, index) => [
+    `shivaji-mharaj-murti${index + 3}`,
+    `smp-${String(index + 13).padStart(3, "0")}`
+  ] as [string, string])
+]);
+
+export function getProductByLegacySlug(slug: string) {
+  const productId = legacySlugToProductId.get(slug.toLowerCase());
+  return productId ? getProductById(productId) : undefined;
+}

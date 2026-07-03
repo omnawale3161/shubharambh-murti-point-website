@@ -1,0 +1,13 @@
+import Link from "next/link";
+import { AlertTriangle, PackageX } from "lucide-react";
+import { deleteProductAction } from "@/app/admin/actions";
+import { ImageUploadForm } from "@/components/admin/ImageUploadForm";
+import { requireAdmin } from "@/lib/backend/auth";
+import { inventoryAvailability } from "@/lib/inventory";
+
+export default async function AdminProductsPage() {
+  const { supabase } = await requireAdmin();
+  const { data: products, error } = await supabase.from("products").select("id,name,slug,sku,price_paise,stock,reserved_stock,low_stock_threshold,is_active").order("updated_at", { ascending: false });
+  if (error) throw error;
+  return <><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="section-kicker">Catalog</p><h1 className="mt-2 text-4xl">Products</h1></div><div className="flex gap-2"><Link href="/admin/inventory" className="rounded-lg border border-primary px-5 py-3 font-bold text-primary">Manage inventory</Link><Link href="/admin/products/new" className="rounded-lg bg-primary px-5 py-3 font-bold text-white">Add product</Link></div></div><div className="mt-8 overflow-auto rounded-lg border border-outline-variant bg-white"><table className="w-full min-w-[800px] text-left text-sm"><thead className="bg-surface-container"><tr><th className="p-3">Product</th><th className="p-3">SKU</th><th className="p-3">Price</th><th className="p-3">Available</th><th className="p-3">Status</th><th className="p-3">Actions</th></tr></thead><tbody>{products?.map((product) => { const inventory = inventoryAvailability(product); return <tr key={product.id} className="border-t border-outline-variant"><td className="p-3"><p className="font-bold">{product.name}</p><p className="text-on-surface-variant">{product.slug}</p></td><td className="p-3 font-mono text-xs">{product.sku || <span className="font-bold text-red-700">Missing</span>}</td><td className="p-3">₹{(product.price_paise / 100).toFixed(2)}</td><td className="p-3">{inventory.availableStock}{inventory.isOutOfStock ? <PackageX size={16} className="ml-2 inline text-red-700" /> : inventory.isLowStock ? <AlertTriangle size={16} className="ml-2 inline text-amber-700" /> : null}</td><td className="p-3">{product.is_active ? "Active" : "Disabled"}</td><td className="p-3"><div className="flex gap-2"><Link href={`/admin/products/${product.id}`} className="rounded border px-3 py-1 font-bold">Edit</Link><form action={deleteProductAction}><input type="hidden" name="id" value={product.id} /><button className="rounded border border-red-200 px-3 py-1 font-bold text-red-800">Delete</button></form></div></td></tr>; })}</tbody></table></div><div className="mt-8 max-w-2xl"><ImageUploadForm /></div></>;
+}
