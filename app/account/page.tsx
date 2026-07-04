@@ -27,14 +27,13 @@ export default async function AccountPage() {
     console.error("Customer orders could not be loaded", error);
     return null;
   });
-  if (!orders) return <AccountUnavailable message="We loaded your session, but could not load your orders right now." />;
 
   return (
-    <main className="premium-container py-10 md:py-14">
+    <main className="premium-container py-6 pb-24 md:py-14">
       <p className="section-kicker">My Account</p>
-      <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-primary md:text-5xl">Customer account dashboard.</h1>
-      <div className="mt-7 md:mt-10">
-        <AccountPanel customer={customer} orders={orders} />
+      <h1 className="mt-3 max-w-3xl text-3xl font-black leading-tight text-primary sm:text-4xl md:text-5xl">Customer account dashboard.</h1>
+      <div className="mt-6 md:mt-10">
+        <AccountPanel customer={customer} orders={orders ?? []} ordersLoadError={!orders} />
       </div>
     </main>
   );

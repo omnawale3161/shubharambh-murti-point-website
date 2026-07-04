@@ -22,7 +22,7 @@ function paymentStatusLabel(order: CustomerOrder) {
   return order.payment_method ? statusLabel(order.payment_method) : "Pending";
 }
 
-export function AccountPanel({ customer, orders }: { customer: Customer; orders: CustomerOrder[] }) {
+export function AccountPanel({ customer, orders, ordersLoadError = false }: { customer: Customer; orders: CustomerOrder[]; ordersLoadError?: boolean }) {
   const latestOrderHref = orders[0] ? `/account/orders/${orders[0].id}` : "/account/orders";
 
   return (
@@ -62,7 +62,12 @@ export function AccountPanel({ customer, orders }: { customer: Customer; orders:
 
           <div className="rounded-2xl border border-gold/20 bg-ivory p-4 md:p-5">
             <h3 className="font-black">Order History</h3>
-            {orders.length > 0 ? (
+            {ordersLoadError ? (
+              <div className="mt-4 rounded-2xl border border-gold/25 bg-white p-4 text-sm leading-6 text-ink/70 shadow-card">
+                <p className="font-black text-maroon">Orders could not be loaded right now.</p>
+                <p className="mt-1">Your profile is available. Please refresh this page or try again in a moment to view your orders.</p>
+              </div>
+            ) : orders.length > 0 ? (
               <div className="mt-4 grid gap-4">
                 {orders.map((order) => (
                   <article key={order.id} className="rounded-2xl border border-gold/20 bg-white p-4 text-sm shadow-card">

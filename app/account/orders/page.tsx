@@ -42,14 +42,23 @@ export default async function OrdersPage() {
     console.error("Customer orders could not be loaded", error);
     return null;
   });
-  if (!orders) return <AccountUnavailable message="We loaded your session, but could not load your orders right now." />;
 
   return (
-    <main className="premium-container py-10 md:py-24">
+    <main className="premium-container py-6 pb-24 md:py-24">
       <p className="section-kicker">Your Sanctuary</p>
-      <h1 className="mt-3 text-4xl text-primary md:text-6xl">My Orders</h1>
+      <h1 className="mt-3 text-3xl text-primary sm:text-4xl md:text-6xl">My Orders</h1>
       <div className="mt-7 grid gap-4 md:mt-10 md:gap-5">
-        {orders.length ? orders.map((order) => (
+        {!orders ? (
+          <section className="premium-card rounded-3xl p-5 md:p-8">
+            <h2 className="text-2xl font-black text-primary md:text-3xl">Orders could not be loaded.</h2>
+            <p className="mt-3 text-sm leading-6 text-on-surface-variant md:text-base">
+              Your account is available, but order history could not be fetched right now. Please refresh this page or try again shortly.
+            </p>
+            <Link href="/account" className="btn btn-primary mt-6 w-full rounded-xl px-5 py-3 sm:w-fit">
+              Back to Account
+            </Link>
+          </section>
+        ) : orders.length ? orders.map((order) => (
           <article key={order.id} className="premium-card rounded-3xl p-4 md:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
