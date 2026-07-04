@@ -104,6 +104,21 @@ export async function updateContactStatusAction(formData: FormData) {
   revalidatePath("/admin/contacts");
 }
 
+export async function updateReviewApprovalAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") || "");
+  const approved = String(formData.get("approved")) === "true";
+  if (id) await supabase.from("product_reviews").update({ is_approved: approved }).eq("id", id);
+  revalidatePath("/admin/reviews");
+}
+
+export async function deleteReviewAction(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (id) await supabase.from("product_reviews").delete().eq("id", id);
+  revalidatePath("/admin/reviews");
+}
+
 export async function updateOrderStatusAction(formData: FormData) {
   await requireAdmin();
   const id = String(formData.get("id") || "");

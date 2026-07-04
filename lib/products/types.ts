@@ -22,8 +22,11 @@ export type Product = {
 };
 
 export type Review = {
+  id?: string;
+  productId?: string;
   name: string;
   city: string;
   rating: number;
   quote: string;
+  createdAt?: string;
 };

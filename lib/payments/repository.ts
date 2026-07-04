@@ -18,7 +18,9 @@ export class SupabaseOrderPersistenceError extends Error {
   constructor(
     public readonly status: number,
     public readonly databaseCode: string | undefined,
-    message: string
+    message: string,
+    public readonly details?: string | null,
+    public readonly hint?: string | null
   ) {
     super(message);
     this.name = "SupabaseOrderPersistenceError";
@@ -46,7 +48,9 @@ async function supabaseRequest<T>(
     throw new SupabaseOrderPersistenceError(
       response.status,
       body.code,
-      body.message || `Supabase order persistence failed with status ${response.status}`
+      body.message || `Supabase order persistence failed with status ${response.status}`,
+      body.details,
+      body.hint
     );
   }
 

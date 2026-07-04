@@ -65,7 +65,7 @@ export function ProductPurchasePanel({ product, inventory }: { product: Product;
         <p className="mt-2 text-sm font-semibold text-green-700">Shipping: FREE · Free Delivery Across India.</p>
       </div>
 
-      <div className="grid gap-3">
+      <div className="sticky bottom-20 z-40 grid gap-3 rounded-3xl border border-gold/20 bg-white/95 p-3 shadow-premium backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
         <button
           type="button"
           disabled={outOfStock}
@@ -82,17 +82,19 @@ export function ProductPurchasePanel({ product, inventory }: { product: Product;
         >
           {outOfStock ? "Out of Stock" : "Add to Cart"}
         </button>
-        <button
-          type="button"
-          onClick={() => toggleWishlist(product.id)}
-          aria-pressed={wished}
-          className="btn btn-secondary"
-        >
-          {wished ? "Remove from Wishlist" : "Add to Wishlist"}
-        </button>
-        <a href={orderMessage(product)} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
-          Order on WhatsApp
-        </a>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => toggleWishlist(product.id)}
+            aria-pressed={wished}
+            className="btn btn-secondary px-4 text-sm"
+          >
+            {wished ? "Wishlisted" : "Wishlist"}
+          </button>
+          <a href={orderMessage(product)} target="_blank" rel="noopener noreferrer" className="btn btn-secondary px-4 text-sm">
+            WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   );

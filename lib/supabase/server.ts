@@ -16,6 +16,16 @@ export class MissingSupabaseConfigurationError extends Error {
   }
 }
 
+export class SupabaseServerRequestError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly responseBody: string
+  ) {
+    super(`Supabase server request failed with status ${status}: ${responseBody}`);
+    this.name = "SupabaseServerRequestError";
+  }
+}
+
 export function getSupabaseServerCredentials(): SupabaseServerCredentials {
   const supabaseUrl = process.env.SUPABASE_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
@@ -69,7 +79,7 @@ export async function supabaseServerRequest<T>(
   });
 
   if (!response.ok) {
-    throw new Error(`Supabase server request failed with status ${response.status}`);
+    throw new SupabaseServerRequestError(response.status, await response.text());
   }
 
   if (response.status === 204) return undefined as T;

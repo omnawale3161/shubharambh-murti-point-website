@@ -34,7 +34,7 @@ export function HeaderNav() {
   );
 }
 
-export function MobileHeaderNav() {
+export function MobileHeaderNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -43,8 +43,9 @@ export function MobileHeaderNav() {
         <Link
           key={href}
           href={href}
+          onClick={onNavigate}
           aria-current={isActive(pathname, href) ? "page" : undefined}
-          className="rounded-xl px-3 py-2 hover:bg-beige aria-current:bg-primary aria-current:text-white"
+          className="rounded-xl px-3 py-3 hover:bg-beige aria-current:bg-primary aria-current:text-white"
         >
           {label}
         </Link>

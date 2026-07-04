@@ -37,7 +37,7 @@ export function CollectionBrowser({
 
   return (
     <>
-      <section className="grid gap-4 border-b border-outline-variant pb-6 md:grid-cols-[1fr_240px_auto]">
+      <section className="grid gap-4 rounded-3xl border border-outline-variant bg-white p-4 shadow-card md:grid-cols-[1fr_240px_auto] md:p-5">
         <label className="grid gap-2 text-sm font-bold text-on-surface-variant">
           Search products
           <input
@@ -85,7 +85,7 @@ export function CollectionBrowser({
       </div>
 
       <p className="mt-8 text-sm font-bold text-ink/62" aria-live="polite" aria-atomic="true">{visibleProducts.length} products found</p>
-      <div id="product-results" className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div id="product-results" className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
         {visibleProducts.map((product) => <ProductCard key={product.slug} product={product} inventory={inventory[product.slug]} />)}
       </div>
       {visibleProducts.length === 0 ? (

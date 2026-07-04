@@ -4,7 +4,7 @@ import { Download, MessageCircle, PackageCheck, Truck } from "lucide-react";
 import { auth } from "@/auth";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
-import { getCustomerOrders } from "@/lib/auth";
+import { getCustomerById, getCustomerOrders } from "@/lib/auth";
 import { orderStatusLabel, paymentMethodLabel } from "@/lib/orders";
 import { formatPrice, whatsappUrl } from "@/lib/products";
 import { privatePageMetadata } from "@/lib/seo";
@@ -27,28 +27,30 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/account/orders");
   const { id } = await params;
-  const order = (await getCustomerOrders(session.user.id)).find((item) => item.id === id);
+  const customer = await getCustomerById(session.user.id);
+  if (!customer) redirect("/login");
+  const order = (await getCustomerOrders(customer.id)).find((item) => item.id === id);
   if (!order) notFound();
 
   const supportHref = `${whatsappUrl}?text=${encodeURIComponent(`Namaste, I need help tracking order ${order.id}.`)}`;
 
   return (
-    <main className="premium-container py-16 md:py-24">
+    <main className="premium-container py-10 md:py-24">
       <p className="section-kicker">Order Tracking</p>
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-5xl text-primary md:text-6xl">Track Order</h1>
+          <h1 className="text-4xl text-primary md:text-6xl">Track Order</h1>
           <p className="mt-3 break-all font-mono text-sm font-bold text-on-surface-variant">Order ID: {order.id}</p>
         </div>
-        <Link href="/account/orders" className="rounded-full border border-gold/30 px-5 py-3 text-sm font-bold text-primary transition hover:border-gold hover:bg-ivory">
+        <Link href="/account/orders" className="btn btn-secondary min-h-10 rounded-full px-5 py-3 text-sm">
           Back to Orders
         </Link>
       </div>
 
-      <section className="premium-card mt-10 rounded-3xl p-6 md:p-8">
+      <section className="premium-card mt-8 rounded-3xl p-4 md:mt-10 md:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-3xl text-primary">{order.product_name}</h2>
+          <h2 className="text-2xl leading-tight text-primary md:text-3xl">{order.product_name}</h2>
             <p className="mt-2 text-sm font-semibold text-on-surface-variant">Placed on {formatDate(order.created_at)}</p>
           </div>
           <span className="rounded-full bg-green-50 px-4 py-2 text-sm font-bold text-green-800">{orderStatusLabel(order.status)}</span>
@@ -81,7 +83,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <section className="rounded-3xl border border-gold/20 bg-white p-6 shadow-card">
             <div className="flex items-center gap-3 text-primary"><MessageCircle size={20} /><h2 className="text-xl font-bold">Need Help?</h2></div>
             <p className="mt-3 text-sm leading-6 text-on-surface-variant">Our support team can help with shipment updates, delivery questions, or address guidance.</p>
-            <a href={supportHref} target="_blank" rel="noopener noreferrer" className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-whatsapp px-5 py-3 font-bold text-white">
+          <a href={supportHref} target="_blank" rel="noopener noreferrer" className="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-whatsapp px-5 py-3 font-bold text-white transition hover:-translate-y-0.5">
               <WhatsAppIcon size={20} />WhatsApp Support
             </a>
           </section>

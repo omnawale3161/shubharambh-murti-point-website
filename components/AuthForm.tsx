@@ -11,6 +11,17 @@ async function jsonResponse(response: Response) {
   if (!response.ok) throw new Error(body.error || "Authentication request failed.");
 }
 
+function safeRedirectTarget(value: string | null | undefined, fallback: string) {
+  if (!value) return fallback;
+  try {
+    const target = new URL(value, window.location.origin);
+    if (target.origin !== window.location.origin) return fallback;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return fallback;
+  }
+}
+
 export function AuthForm({ mode, callbackUrl = "/account" }: { mode: Mode; callbackUrl?: string }) {
   const isRegister = mode === "register";
   const [error, setError] = useState("");
@@ -43,14 +54,15 @@ export function AuthForm({ mode, callbackUrl = "/account" }: { mode: Mode; callb
         email,
         password,
         redirect: false,
-        redirectTo: callbackUrl
+        redirectTo: callbackUrl,
+        callbackUrl
       });
 
-      if (result?.error) {
+      if (result?.error || result?.ok === false) {
         throw new Error(isRegister ? "Account created, but automatic login failed. Please login." : "Invalid email or password.");
       }
 
-      window.location.assign(result?.url || callbackUrl);
+      window.location.assign(safeRedirectTarget(result?.url, callbackUrl));
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Authentication failed.");
       setIsSubmitting(false);

@@ -12,7 +12,7 @@ export {
   formatPrice,
   GIFT_BOX_PRICE
 } from "./pricing";
-export { productRating, reviews, ugcGallery } from "./reviews";
+export { productRating, ugcGallery } from "./reviews";
 export { isLegacyUuidSlug, isValidProductId, isValidProductSlug, productPath } from "./slug";
 export type { Product, ProductCollection, Review } from "./types";
 

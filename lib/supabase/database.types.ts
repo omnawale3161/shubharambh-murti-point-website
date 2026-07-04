@@ -37,6 +37,11 @@ export type Database = {
         { id?: string; name: string; email?: string | null; phone: string; message: string; status?: ContactStatus; created_at?: string; updated_at?: string },
         { status?: ContactStatus; updated_at?: string }
       >;
+      product_reviews: Table<
+        { id: string; product_id: string; name: string; city: string; rating: number; quote: string; is_approved: boolean; created_at: string },
+        { id?: string; product_id: string; name: string; city: string; rating: number; quote: string; is_approved?: boolean; created_at?: string },
+        { name?: string; city?: string; rating?: number; quote?: string; is_approved?: boolean }
+      >;
     };
     Views: Record<string, never>;
     Functions: {
@@ -52,3 +57,4 @@ export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type ProductRecord = Database["public"]["Tables"]["products"]["Row"];
 export type ContactSubmission = Database["public"]["Tables"]["contact_submissions"]["Row"];
 export type StockMovement = Database["public"]["Tables"]["stock_movements"]["Row"];
+export type ProductReviewRecord = Database["public"]["Tables"]["product_reviews"]["Row"];

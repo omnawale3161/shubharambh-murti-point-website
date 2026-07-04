@@ -55,7 +55,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="relative">
-          <div className="absolute -inset-4 rounded-[2rem] bg-gold/20 blur-2xl" />
+          <div className="absolute inset-0 rounded-[2rem] bg-gold/20 blur-2xl md:-inset-4" />
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-outline-variant bg-surface-container shadow-hover">
             <Image src="/assets/showroom-hero.png" alt="Premium murti collection at Shubharambh Murti Point" fill priority fetchPriority="high" quality={82} sizes="(max-width: 767px) calc(100vw - 40px), 50vw" className="object-cover" />
           </div>
@@ -73,8 +73,8 @@ export default function HomePage() {
               View All Products
             </Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {featuredProducts.map((product) => <ProductCard key={product.slug} product={product} />)}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+            {featuredProducts.map((product) => <ProductCard key={product.slug} product={product} showSecondaryActions={false} />)}
           </div>
         </div>
       </section>
@@ -92,6 +92,17 @@ export default function HomePage() {
           <Link href="/about" className="btn btn-secondary mt-8">
             Learn More
           </Link>
+        </div>
+      </section>
+
+      <section className="bg-white py-16">
+        <div className="premium-container grid gap-5 md:grid-cols-3">
+          {["Free Delivery Across India", "Secure Razorpay Payments", "Fast Dispatch + Safe Packaging"].map((item) => (
+            <div key={item} className="rounded-3xl border border-gold/20 bg-ivory p-6 shadow-card">
+              <p className="text-sm font-black uppercase tracking-[0.16em] text-gold">Store Promise</p>
+              <h2 className="mt-3 text-2xl text-primary">{item}</h2>
+            </div>
+          ))}
         </div>
       </section>
 

@@ -147,7 +147,7 @@ export function CheckoutPageClient() {
       <h1 className="mt-2 text-4xl text-primary md:text-5xl">Complete your order</h1>
       <form onSubmit={submitCheckout} className="mt-8 grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="grid gap-6">
-          <section className="rounded-lg border border-outline-variant bg-white p-5 shadow-card">
+          <section className="rounded-3xl border border-outline-variant bg-white p-5 shadow-card">
             <h2 className="text-2xl font-bold text-primary">1. Delivery Address</h2>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <label className="grid gap-1 text-sm font-bold">Full Name<input required name="fullName" autoComplete="name" minLength={2} className={field} /></label>
@@ -163,20 +163,20 @@ export function CheckoutPageClient() {
             <div className="mt-5 border-t border-outline-variant pt-5"><PincodeChecker compact /></div>
           </section>
 
-          <section className="rounded-lg border border-outline-variant bg-white p-5 shadow-card">
+          <section className="rounded-3xl border border-outline-variant bg-white p-5 shadow-card">
             <h2 className="text-2xl font-bold text-primary">2. Payment Method</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              {paymentMethods.map(({ id, label, detail, icon: Icon }) => <label key={id} className={`flex cursor-pointer gap-3 rounded-lg border p-4 ${paymentMethod === id ? "border-primary bg-surface-container-low" : "border-outline-variant"}`}><input type="radio" name="paymentMethodChoice" value={id} checked={paymentMethod === id} onChange={() => setPaymentMethod(id)} /><Icon size={20} className="shrink-0 text-primary" /><span><span className="block font-bold">{label}</span><span className="text-xs text-on-surface-variant">{detail}</span></span></label>)}
+              {paymentMethods.map(({ id, label, detail, icon: Icon }) => <label key={id} className={`flex min-h-16 cursor-pointer gap-3 rounded-2xl border p-4 transition ${paymentMethod === id ? "border-primary bg-surface-container-low shadow-card" : "border-outline-variant hover:border-gold/60"}`}><input type="radio" name="paymentMethodChoice" value={id} checked={paymentMethod === id} onChange={() => setPaymentMethod(id)} /><Icon size={20} className="shrink-0 text-primary" /><span><span className="block font-bold">{label}</span><span className="text-xs text-on-surface-variant">{detail}</span></span></label>)}
             </div>
           </section>
         </div>
 
         <aside className="grid h-fit gap-5 lg:sticky lg:top-28">
-          <section className="rounded-lg border border-outline-variant bg-white p-5 shadow-card">
+          <section className="rounded-3xl border border-outline-variant bg-white p-5 shadow-card">
             <h2 className="text-xl font-bold text-primary">Order Summary</h2>
-            <div className="mt-4 grid gap-4">{checkoutItems.map((item) => <div key={`${item.productId}-${item.options.giftBox}`} className="grid grid-cols-[72px_1fr] gap-3 border-t border-outline-variant pt-4"><div className="relative aspect-square overflow-hidden rounded-lg bg-surface-container"><Image src={item.product.image} alt={item.product.name} fill sizes="72px" className="object-cover" /></div><div><p className="font-bold">{item.product.name}</p><p className="text-sm text-on-surface-variant">Qty: {item.quantity}{item.options.giftBox ? " · Gift box" : ""}</p><p className="mt-1 font-bold text-primary">{formatPrice(item.product.price * item.quantity)}</p></div></div>)}</div>
+            <div className="mt-4 grid gap-4">{checkoutItems.map((item) => <div key={`${item.productId}-${item.options.giftBox}`} className="grid grid-cols-[72px_1fr] gap-3 border-t border-outline-variant pt-4"><div className="relative aspect-square overflow-hidden rounded-2xl bg-surface-container-low"><Image src={item.product.image} alt={item.product.name} fill sizes="72px" className="object-contain p-1" /></div><div><p className="font-bold">{item.product.name}</p><p className="text-sm text-on-surface-variant">Qty: {item.quantity}{item.options.giftBox ? " · Gift box" : ""}</p><p className="mt-1 font-bold text-primary">{formatPrice(item.product.price * item.quantity)}</p></div></div>)}</div>
           </section>
-          <section className="rounded-lg border border-outline-variant bg-white p-5 shadow-card">
+          <section className="rounded-3xl border border-outline-variant bg-white p-5 shadow-card">
             <h2 className="text-xl font-bold text-primary">Price Details</h2>
             <dl className="mt-4 grid gap-3 text-sm"><div className="flex justify-between"><dt>Product Price</dt><dd>{formatPrice(pricing.productPrice)}</dd></div><div className="flex justify-between"><dt>Quantity</dt><dd>{totalQuantity}</dd></div><div className="flex justify-between"><dt>Shipping:</dt><dd className="font-bold text-green-700">FREE</dd></div><div className="flex justify-between"><dt>Discount</dt><dd className="text-green-700">- {formatPrice(pricing.discount)}</dd></div><div className="flex justify-between border-t border-outline-variant pt-3"><dt>Total Amount</dt><dd>{formatPrice(pricing.totalAmount)}</dd></div><div className="flex justify-between border-t border-outline-variant pt-3 text-lg font-black"><dt>Grand Total</dt><dd>{formatPrice(pricing.grandTotal)}</dd></div></dl>
             <button disabled={isSubmitting} className="btn btn-primary mt-5 w-full disabled:opacity-50">{isSubmitting ? "Placing order..." : paymentMethod === "cash_on_delivery" ? "Place COD Order" : `Pay ${formatPrice(pricing.grandTotal)}`}</button>

@@ -64,7 +64,7 @@ export function CartPageClient() {
           ))}
         </section>
 
-        <aside className="h-fit rounded-3xl bg-surface-container p-7 shadow-card">
+        <aside className="h-fit rounded-3xl bg-surface-container p-5 shadow-card md:p-7 lg:sticky lg:top-28">
           <h2 className="text-3xl text-primary">Order Summary</h2>
           <p className="mt-7 text-sm font-bold text-on-surface-variant">Subtotal</p>
           <p className="mt-2 text-4xl font-semibold text-primary">{formatPrice(subtotal)}</p>
@@ -72,11 +72,22 @@ export function CartPageClient() {
           <div className="mt-5 border-y border-gold/20 py-5">
             <PincodeChecker compact />
           </div>
-          <div className="mt-6 grid gap-3">
+          <section className="mt-5 rounded-2xl border border-gold/20 bg-white p-4">
+            <label className="grid gap-2 text-sm font-bold text-on-surface-variant">
+              Coupon Code
+              <div className="grid grid-cols-[1fr_auto] gap-2">
+                <input placeholder="Enter code" className="min-w-0 rounded-full border border-outline-variant px-4 py-3 outline-hidden focus:border-primary" />
+                <button type="button" className="btn btn-secondary min-h-11 px-4 py-2 text-sm">
+                  Apply
+                </button>
+              </div>
+            </label>
+          </section>
+          <div className="sticky bottom-20 z-40 mt-6 grid gap-3 rounded-3xl bg-surface-container/95 p-2 backdrop-blur md:static md:p-0 md:backdrop-blur-none">
             <Link href="/checkout" className="btn btn-primary">Proceed to Checkout</Link>
             <a href={cartMessage} target="_blank" rel="noopener noreferrer" className="btn btn-primary">Checkout on WhatsApp</a>
             <Link href="/collections" className="btn btn-secondary">Continue Shopping</Link>
-            <button type="button" onClick={clearCart} className="rounded-xl px-6 py-3 text-center text-sm font-bold text-error">Clear Cart</button>
+            <button type="button" onClick={clearCart} className="btn btn-secondary border-error text-error hover:border-error hover:bg-error hover:text-white">Clear Cart</button>
           </div>
         </aside>
       </div>

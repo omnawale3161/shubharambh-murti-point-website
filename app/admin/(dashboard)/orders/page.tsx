@@ -1,21 +1,97 @@
 import Link from "next/link";
-import { Download, Search } from "lucide-react";
+import { Download, Search, Truck } from "lucide-react";
+import { AdminEmptyState, AdminPageHeader, AdminStatusBadge, AdminTableShell } from "@/components/admin/AdminUI";
 import { requireAdmin } from "@/lib/backend/auth";
 import { formatOrderAddress, orderStatusLabel } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
 import { getOrderPersistenceConfig, listOrders, type OrderStatus } from "@/lib/payments";
 
 const filterStatuses: OrderStatus[] = ["created", "confirmed", "packed", "shipped", "delivered", "cancelled", "payment_failed"];
+const paid = new Set(["paid", "confirmed", "packed", "shipped", "delivered"]);
+const pending = new Set(["created", "cod_pending", "payment_authorized"]);
+
+function statusTone(status: OrderStatus) {
+  if (paid.has(status)) return "green" as const;
+  if (pending.has(status)) return "amber" as const;
+  if (status === "cancelled" || status === "payment_failed") return "red" as const;
+  return "slate" as const;
+}
 
 export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string }> }) {
   await requireAdmin();
   const { q = "", status = "all" } = await searchParams;
   const allOrders = await listOrders(getOrderPersistenceConfig(), q.trim().slice(0, 100));
-  const paid = new Set(["paid", "confirmed", "packed", "shipped", "delivered"]);
-  const pending = new Set(["created", "cod_pending", "payment_authorized"]);
   const orders = allOrders.filter((order) => status === "all" || order.status === status || (status === "paid" && paid.has(order.status)) || (status === "pending" && pending.has(order.status)));
 
-  return <><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="section-kicker">Fulfilment</p><h1 className="mt-2 text-4xl">Orders</h1></div><a href="/api/admin/orders/export" className="flex items-center gap-2 rounded-lg border border-primary px-4 py-2 font-bold text-primary"><Download size={17} />Export CSV</a></div>
-    <form className="mt-7 grid max-w-3xl gap-2 sm:grid-cols-[1fr_190px_auto]"><label className="relative"><span className="sr-only">Search orders</span><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" /><input name="q" defaultValue={q} placeholder="Search ID, product, email, or phone" className="w-full rounded-lg border border-outline-variant bg-white py-3 pl-10 pr-3" /></label><select name="status" defaultValue={status} aria-label="Filter by order status" className="rounded-lg border border-outline-variant bg-white px-3 py-3"><option value="all">All statuses</option><option value="pending">Pending orders</option><option value="paid">Paid orders</option>{filterStatuses.map((value) => <option key={value} value={value}>{orderStatusLabel(value)}</option>)}</select><button className="rounded-lg bg-primary px-5 py-3 font-bold text-white">Filter</button></form>
-    <div className="mt-7 grid gap-4">{orders.length ? orders.map((order) => <Link href={`/admin/orders/${order.id}`} key={order.id} className="grid gap-4 rounded-lg border border-outline-variant bg-white p-5 shadow-card transition hover:border-primary md:grid-cols-[1fr_auto]"><div><div className="flex flex-wrap items-center gap-3"><h2 className="font-mono text-sm font-bold text-primary">{order.id}</h2><span className="rounded-full bg-surface-container px-3 py-1 text-xs font-bold">{orderStatusLabel(order.status)}</span></div><p className="mt-2 text-lg font-bold">{order.product_name}</p><p className="mt-1 text-sm text-on-surface-variant">{order.customer_email} · {order.customer_phone}</p><p className="mt-1 line-clamp-1 text-xs text-on-surface-variant">{formatOrderAddress(order.delivery_address)}</p></div><div className="md:text-right"><p className="text-xl font-bold text-primary">{formatPrice(order.amount_paise / 100)}</p><p className="mt-1 text-xs text-on-surface-variant">{new Date(order.created_at || "").toLocaleString("en-IN")}</p></div></Link>) : <p className="rounded-lg border border-outline-variant bg-white p-6">No matching orders.</p>}</div></>;
+  return (
+    <>
+      <AdminPageHeader
+        kicker="Fulfilment"
+        title="Orders"
+        description="Search, filter, inspect customer details, update fulfilment, print invoices, and track shipments."
+        action={<a href="/api/admin/orders/export" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:border-amber-300 hover:text-amber-700"><Download size={17} />Export CSV</a>}
+      />
+      <form className="mt-8 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:grid-cols-[1fr_210px_auto]">
+        <label className="relative">
+          <span className="sr-only">Search orders</span>
+          <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input name="q" defaultValue={q} placeholder="Search ID, product, email, or phone" className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10" />
+        </label>
+        <select name="status" defaultValue={status} aria-label="Filter by order status" className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10">
+          <option value="all">All statuses</option>
+          <option value="pending">Pending orders</option>
+          <option value="paid">Paid orders</option>
+          {filterStatuses.map((value) => <option key={value} value={value}>{orderStatusLabel(value)}</option>)}
+        </select>
+        <button className="h-11 rounded-xl bg-amber-600 px-5 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700">Filter</button>
+      </form>
+      <div className="mt-8">
+        <AdminTableShell>
+          <table className="w-full min-w-[1040px] text-left text-sm">
+            <thead className="bg-slate-50 text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+              <tr>
+                <th className="px-5 py-4">Order</th>
+                <th className="px-5 py-4">Customer</th>
+                <th className="px-5 py-4">Payment</th>
+                <th className="px-5 py-4">Status</th>
+                <th className="px-5 py-4">Tracking</th>
+                <th className="px-5 py-4">Total</th>
+                <th className="px-5 py-4">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {orders.map((order) => (
+                <tr key={order.id} className="transition hover:bg-slate-50">
+                  <td className="px-5 py-4">
+                    <p className="font-mono text-xs font-black text-amber-700">{order.id}</p>
+                    <p className="mt-2 font-black text-slate-950">{order.product_name}</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">{order.created_at ? new Date(order.created_at).toLocaleString("en-IN") : "Date unavailable"}</p>
+                  </td>
+                  <td className="px-5 py-4">
+                    <p className="font-bold text-slate-950">{order.delivery_address?.fullName || "Customer"}</p>
+                    <p className="mt-1 text-xs text-slate-500">{order.customer_email || "No email"} · {order.customer_phone || "No phone"}</p>
+                    <p className="mt-1 line-clamp-1 max-w-xs text-xs text-slate-500">{formatOrderAddress(order.delivery_address)}</p>
+                  </td>
+                  <td className="px-5 py-4"><AdminStatusBadge tone={paid.has(order.status) ? "green" : order.status === "payment_failed" ? "red" : "amber"}>{paid.has(order.status) ? "Paid" : order.status === "payment_failed" ? "Failed" : "Pending"}</AdminStatusBadge></td>
+                  <td className="px-5 py-4"><AdminStatusBadge tone={statusTone(order.status)}>{orderStatusLabel(order.status)}</AdminStatusBadge></td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
+                      <Truck size={16} className="text-slate-400" />
+                      {order.tracking_number || "Not added"}
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">{order.estimated_delivery_date || "ETA not set"}</p>
+                  </td>
+                  <td className="px-5 py-4 font-black text-slate-950">{formatPrice(order.amount_paise / 100)}</td>
+                  <td className="px-5 py-4">
+                    <Link href={`/admin/orders/${order.id}`} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black text-slate-900 transition hover:border-amber-300 hover:text-amber-700">View order</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!orders.length ? <div className="p-5"><AdminEmptyState title="No matching orders" description="Try a different search term or status filter." /></div> : null}
+        </AdminTableShell>
+      </div>
+    </>
+  );
 }

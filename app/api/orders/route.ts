@@ -24,6 +24,37 @@ import {
 
 export const runtime = "nodejs";
 
+function checkoutSetupMessage(message: string) {
+  return `${message} You can still order on WhatsApp.`;
+}
+
+function supabaseCheckoutSetupMessage(error: SupabaseOrderPersistenceError) {
+  const combined = [error.databaseCode, error.message, error.details, error.hint].filter(Boolean).join(" ");
+  const inventoryMigrationMissing = /sku|stock|reserved_stock|low_stock_threshold|reserve_order_inventory|set_order_status_with_inventory/i.test(combined);
+  const postCheckoutColumnMissing = /tracking_number|estimated_delivery_date|customer_phone|customer_email|invoice_url|access_token_hash|confirmation_sent_at/i.test(combined);
+  const checkoutMigrationMissing = /orders|order_items|delivery_address|payment_method|shipping_paise|discount_paise|payment_events/i.test(combined);
+
+  if (error.databaseCode === "PGRST202" || /function|rpc|reserve_order_inventory|set_order_status_with_inventory/i.test(combined)) {
+    return checkoutSetupMessage("Checkout database function is missing. Apply supabase/migrations/005_inventory_management.sql in Supabase.");
+  }
+
+  if (["PGRST204", "42703"].includes(error.databaseCode || "") || /column|schema cache/i.test(combined)) {
+    const migration = inventoryMigrationMissing ? "005_inventory_management.sql" : postCheckoutColumnMissing ? "004_post_checkout.sql" : "003_checkout.sql";
+    return checkoutSetupMessage(`Checkout database column is missing. Apply supabase/migrations/${migration} in Supabase.`);
+  }
+
+  if (["42P01", "PGRST205"].includes(error.databaseCode || "") || /table|relation/i.test(combined)) {
+    const migration = inventoryMigrationMissing ? "005_inventory_management.sql" : checkoutMigrationMissing ? "003_checkout.sql" : "003_checkout.sql";
+    return checkoutSetupMessage(`Checkout database table is missing. Apply supabase/migrations/${migration} in Supabase.`);
+  }
+
+  if (error.status === 401 || error.status === 403) {
+    return checkoutSetupMessage("Supabase checkout access failed. Check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
+  }
+
+  return checkoutSetupMessage("Checkout database request failed. Check Supabase migrations and service role configuration.");
+}
+
 export async function POST(request: Request) {
   try {
     const input = parseOrderRequest(await request.json());
@@ -152,26 +183,17 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Secure order creation failed", error);
     if (error instanceof PaymentConfigurationError) {
-      const message = process.env.NODE_ENV === "development"
-        ? `Secure checkout needs server configuration. Add ${error.missingVariables.join(" and ")} to .env.local, then restart the development server.`
-        : "Secure online checkout is temporarily unavailable. Please order on WhatsApp.";
+      const message = checkoutSetupMessage(`Secure checkout needs server configuration. Add ${error.missingVariables.join(" and ")} to .env.local, then restart the server.`);
       return NextResponse.json({ error: message }, { status: 503 });
     }
     if (error instanceof SupabaseOrderPersistenceError) {
       if (error.databaseCode === "P0001" && /stock|Inventory product/i.test(error.message)) {
         return NextResponse.json({ error: error.message }, { status: 409 });
       }
-      const inventoryMigrationMissing = /sku|stock|reserved_stock|low_stock_threshold|reserve_order_inventory/.test(error.message);
-      const postCheckoutColumnMissing = /tracking_number|estimated_delivery_date|customer_phone|access_token_hash|confirmation_sent_at/.test(error.message);
-      const message = process.env.NODE_ENV === "development" && error.databaseCode === "42703"
-        ? `Checkout database migration is missing. Apply supabase/migrations/${inventoryMigrationMissing ? "005_inventory_management.sql" : postCheckoutColumnMissing ? "004_post_checkout.sql" : "003_checkout.sql"} in the Supabase SQL Editor, then try again.`
-        : "Secure online checkout is temporarily unavailable. Please order on WhatsApp.";
-      return NextResponse.json({ error: message }, { status: 503 });
+      return NextResponse.json({ error: supabaseCheckoutSetupMessage(error) }, { status: 503 });
     }
     if (error instanceof RazorpayApiError) {
-      const message = process.env.NODE_ENV === "development"
-        ? `Razorpay order creation failed with status ${error.status}. Check that RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET belong to the same Razorpay mode/account.`
-        : "Secure online checkout is temporarily unavailable. Please order on WhatsApp.";
+      const message = checkoutSetupMessage(`Razorpay order creation failed with status ${error.status}. Check that RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET belong to the same Razorpay mode/account.`);
       return NextResponse.json({ error: message }, { status: 503 });
     }
     return NextResponse.json(

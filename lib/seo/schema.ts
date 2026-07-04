@@ -1,5 +1,4 @@
 import type { Product } from "@/lib/products";
-import { productRating } from "@/lib/products";
 import { absoluteUrl, siteConfig } from "./config";
 
 export const localBusinessSchema = {
@@ -31,8 +30,6 @@ export const websiteSchema = {
 };
 
 export function productSchema(product: Product) {
-  const rating = productRating(product);
-
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -47,13 +44,6 @@ export function productSchema(product: Product) {
     brand: {
       "@type": "Brand",
       name: siteConfig.name
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: rating.rating,
-      reviewCount: rating.count,
-      bestRating: 5,
-      worstRating: 1
     },
     offers: {
       "@type": "Offer",

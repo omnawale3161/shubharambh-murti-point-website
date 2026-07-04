@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarDays, CreditCard, MapPinned, PackageCheck, Truck } from "lucide-react";
 import { auth } from "@/auth";
-import { getCustomerOrders } from "@/lib/auth";
+import { getCustomerById, getCustomerOrders } from "@/lib/auth";
 import { orderStatusLabel, paymentMethodLabel } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
 import { privatePageMetadata } from "@/lib/seo";
@@ -24,18 +24,20 @@ function paymentStatus(status: string, method?: string | null) {
 export default async function OrdersPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/account/orders");
-  const orders = await getCustomerOrders(session.user.id);
+  const customer = await getCustomerById(session.user.id);
+  if (!customer) redirect("/login");
+  const orders = await getCustomerOrders(customer.id);
 
   return (
-    <main className="premium-container py-16 md:py-24">
+    <main className="premium-container py-10 md:py-24">
       <p className="section-kicker">Your Sanctuary</p>
-      <h1 className="mt-3 text-5xl text-primary md:text-6xl">My Orders</h1>
-      <div className="mt-10 grid gap-5">
+      <h1 className="mt-3 text-4xl text-primary md:text-6xl">My Orders</h1>
+      <div className="mt-7 grid gap-4 md:mt-10 md:gap-5">
         {orders.length ? orders.map((order) => (
-          <article key={order.id} className="premium-card rounded-3xl p-6">
+          <article key={order.id} className="premium-card rounded-3xl p-4 md:p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <h2 className="text-2xl text-primary">{order.product_name}</h2>
+                <h2 className="text-2xl leading-tight text-primary">{order.product_name}</h2>
                 <p className="mt-2 break-all font-mono text-xs font-bold text-on-surface-variant">Order ID: {order.id}</p>
               </div>
               <p className="font-semibold text-primary">{formatPrice(order.amount_paise / 100)}</p>
@@ -50,7 +52,7 @@ export default async function OrdersPage() {
               <div className="flex gap-2"><MapPinned size={17} className="mt-0.5 text-gold" /><div><dt className="font-bold text-on-surface-variant">Estimated Delivery</dt><dd>{formatDate(order.estimated_delivery_date)}</dd></div></div>
             </dl>
 
-            <Link href={`/account/orders/${order.id}`} className="btn btn-primary mt-6 min-h-10 rounded-xl px-5 py-3 text-sm">
+            <Link href={`/account/orders/${order.id}`} className="btn btn-primary mt-6 w-full min-h-10 rounded-xl px-5 py-3 text-sm sm:w-fit">
               Track Order
             </Link>
           </article>

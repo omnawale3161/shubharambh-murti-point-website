@@ -25,7 +25,7 @@ export function HeaderShopLinks() {
   );
 }
 
-export function MobileShopLinks() {
+export function MobileShopLinks({ onNavigate }: { onNavigate?: () => void }) {
   const { cartCount, isHydrated, wishlistCount } = useShop();
   const visibleCartCount = isHydrated ? cartCount : 0;
   const visibleWishlistCount = isHydrated ? wishlistCount : 0;
@@ -33,10 +33,10 @@ export function MobileShopLinks() {
   return (
     <>
       <GlobalSearch mobile />
-      <Link href="/wishlist" className="rounded-xl px-3 py-2 hover:bg-beige">
+      <Link href="/wishlist" onClick={onNavigate} className="rounded-xl px-3 py-3 hover:bg-beige">
         Wishlist {visibleWishlistCount > 0 ? `(${visibleWishlistCount})` : ""}
       </Link>
-      <Link href="/cart" className="rounded-xl px-3 py-2 hover:bg-beige">
+      <Link href="/cart" onClick={onNavigate} className="rounded-xl px-3 py-3 hover:bg-beige">
         Cart {visibleCartCount > 0 ? `(${visibleCartCount})` : ""}
       </Link>
     </>

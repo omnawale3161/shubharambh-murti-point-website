@@ -16,10 +16,10 @@ export default async function AccountPage() {
   const orders = await getCustomerOrders(customer.id);
 
   return (
-    <main className="premium-container py-14">
+    <main className="premium-container py-10 md:py-14">
       <p className="section-kicker">My Account</p>
-      <h1 className="mt-3 max-w-3xl text-5xl font-black leading-tight">Customer account dashboard.</h1>
-      <div className="mt-10">
+      <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-primary md:text-5xl">Customer account dashboard.</h1>
+      <div className="mt-7 md:mt-10">
         <AccountPanel customer={customer} orders={orders} />
       </div>
     </main>

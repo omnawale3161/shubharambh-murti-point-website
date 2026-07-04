@@ -1,36 +1,67 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Review, whatsappUrl } from "@/lib/products";
+import { Review } from "@/lib/products";
 
-export function ReviewsPanel({ initialReviews }: { initialReviews: Review[] }) {
+async function responseJson(response: Response) {
+  const body = await response.json() as { review?: Review; error?: string };
+  if (!response.ok || !body.review) throw new Error(body.error || "Review could not be submitted.");
+  return body.review;
+}
+
+export function ReviewsPanel({ initialReviews, productId }: { initialReviews: Review[]; productId: string }) {
   const [reviews, setReviews] = useState(initialReviews);
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [quote, setQuote] = useState("");
   const [rating, setRating] = useState(5);
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<{ kind: "success" | "error"; message: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function submitReview(event: FormEvent<HTMLFormElement>) {
+  async function submitReview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setReviews((items) => [{ name, city, quote, rating }, ...items]);
-    setName("");
-    setCity("");
-    setQuote("");
-    setRating(5);
-    setSubmitted(true);
+    setStatus(null);
+
+    if (name.trim().length < 2 || city.trim().length < 2 || quote.trim().length < 10) {
+      setStatus({ kind: "error", message: "Please enter your name, city, and a review of at least 10 characters." });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const review = await responseJson(await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, name, city, quote, rating })
+      }));
+      setReviews((items) => [review, ...items]);
+      setName("");
+      setCity("");
+      setQuote("");
+      setRating(5);
+      setStatus({ kind: "success", message: "Thank you. Your review has been submitted successfully." });
+    } catch (error) {
+      setStatus({ kind: "error", message: error instanceof Error ? error.message : "Review submission failed." });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_360px]">
       <div className="grid gap-5 md:grid-cols-2">
-        {reviews.map((review, index) => (
-          <blockquote key={`${review.name}-${review.city}-${index}`} className="premium-card rounded-2xl p-6">
+        {reviews.length ? reviews.map((review, index) => (
+          <blockquote key={review.id || `${review.name}-${review.city}-${index}`} className="premium-card rounded-2xl p-6">
             <p className="text-sm font-black text-gold">{"★".repeat(review.rating)}</p>
             <p className="mt-4 text-lg font-bold leading-8 text-ink/78">“{review.quote}”</p>
             <footer className="mt-5 text-sm font-black text-maroon">{review.name}, {review.city}</footer>
           </blockquote>
-        ))}
+        )) : (
+          <div className="rounded-2xl border border-gold/20 bg-white p-6 shadow-card md:col-span-2">
+            <p className="font-black text-primary">No customer reviews yet.</p>
+            <p className="mt-2 text-sm leading-6 text-on-surface-variant">Be the first verified customer to share your experience with this murti.</p>
+          </div>
+        )}
       </div>
 
       <form onSubmit={submitReview} className="h-fit rounded-2xl border border-gold/20 bg-beige p-5">
@@ -48,13 +79,10 @@ export function ReviewsPanel({ initialReviews }: { initialReviews: Review[] }) {
             <input required name="city" autoComplete="address-level2" value={city} onChange={(event) => setCity(event.target.value)} className="rounded-xl border border-gold/25 bg-white px-4 py-3 font-semibold" />
           </label>
           <label className="grid gap-2 text-sm font-black">Review
-            <textarea required name="review" value={quote} onChange={(event) => setQuote(event.target.value)} rows={4} className="resize-none rounded-xl border border-gold/25 bg-white px-4 py-3 font-semibold" />
+            <textarea required name="review" minLength={10} maxLength={700} value={quote} onChange={(event) => setQuote(event.target.value)} rows={4} className="resize-none rounded-xl border border-gold/25 bg-white px-4 py-3 font-semibold" />
           </label>
-          <button type="submit" className="btn btn-primary">Submit Review</button>
-          {submitted ? <p className="text-sm font-bold text-maroon" role="status">Thank you. Your review is now shown above.</p> : null}
-          <a href={`${whatsappUrl}?text=${encodeURIComponent("Namaste, I would like to share my product photo for your customer gallery.")}`} className="btn btn-secondary text-sm">
-            Share UGC Photo
-          </a>
+          <button type="submit" disabled={isSubmitting} className="btn btn-primary disabled:opacity-50">{isSubmitting ? "Submitting..." : "Submit Review"}</button>
+          {status ? <p className={`text-sm font-bold ${status.kind === "error" ? "text-error" : "text-maroon"}`} role={status.kind === "error" ? "alert" : "status"}>{status.message}</p> : null}
         </div>
       </form>
     </div>

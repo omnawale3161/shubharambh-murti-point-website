@@ -3,7 +3,7 @@ import type { RazorpayOrder, RazorpayPayment } from "./types";
 const razorpayApi = "https://api.razorpay.com/v1";
 
 export class RazorpayApiError extends Error {
-  constructor(public readonly status: number, message: string) {
+  constructor(public readonly status: number, message: string, public readonly responseBody?: string) {
     super(message);
     this.name = "RazorpayApiError";
   }
@@ -29,7 +29,12 @@ async function razorpayRequest<T>(
   });
 
   if (!response.ok) {
-    throw new RazorpayApiError(response.status, `Razorpay request failed with status ${response.status}`);
+    const responseBody = await response.text();
+    throw new RazorpayApiError(
+      response.status,
+      `Razorpay request failed with status ${response.status}: ${responseBody}`,
+      responseBody
+    );
   }
 
   return response.json() as Promise<T>;

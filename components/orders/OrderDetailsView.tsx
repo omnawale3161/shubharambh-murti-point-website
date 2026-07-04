@@ -28,7 +28,7 @@ export function OrderDetailsView({ order, token, success = false }: { order: Per
           <div className="mt-4 grid gap-4">{(order.order_items || []).map((item) => {
             const product = getProductById(item.productId);
             return <article key={`${item.productId}-${item.giftBox}`} className="grid grid-cols-[80px_1fr] gap-4 border-t border-outline-variant pt-4">
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-container">{product ? <Image src={product.image} alt={item.productName} fill sizes="80px" className="object-cover" /> : null}</div>
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-container-low">{product ? <Image src={product.image} alt={item.productName} fill sizes="80px" className="object-contain p-1" /> : null}</div>
               <div><h3 className="font-bold">{item.productName}</h3><p className="mt-1 text-sm text-on-surface-variant">Quantity: {item.quantity}{item.giftBox ? " · Gift box included" : ""}</p><p className="mt-2 font-bold text-primary">{formatPrice((item.unitPricePaise * item.quantity) / 100)}</p></div>
             </article>;
           })}</div>
@@ -43,7 +43,7 @@ export function OrderDetailsView({ order, token, success = false }: { order: Per
         <Link href="/collections" className="btn btn-primary rounded-lg px-5 py-3"><ShoppingBag size={18} />Continue Shopping</Link>
         {success ? <Link href={trackingHref} className="btn btn-secondary rounded-lg px-5 py-3"><Truck size={18} />Track Order</Link> : null}
         <a href={invoiceHref} className="btn btn-secondary rounded-lg px-5 py-3"><Download size={18} />Download Invoice</a>
-        <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-lg bg-whatsapp px-5 py-3 font-bold text-white"><WhatsAppIcon size={20} />Need Help? WhatsApp Support</a>
+        <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center justify-center gap-2 rounded-lg bg-whatsapp px-5 py-3 font-bold text-white transition hover:-translate-y-0.5"><WhatsAppIcon size={20} />Need Help? WhatsApp Support</a>
       </div>
     </div>
   );
