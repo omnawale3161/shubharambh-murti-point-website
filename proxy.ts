@@ -1,13 +1,26 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { auth } from "@/auth";
 import type { Database } from "@/lib/supabase/database.types";
 
+/**
+ * Builds the real public-facing origin from request headers instead of
+ * request.url. This avoids a NextAuth quirk where AUTH_URL/NEXTAUTH_URL
+ * (if ever set in env vars) silently overrides request.url's origin,
+ * which previously caused production redirects to point at localhost.
+ */
+function getSafeOrigin(request: NextRequest) {
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+  return host ? `${proto}://${host}` : request.nextUrl.origin;
+}
+
 export default auth(async (request) => {
-  const adminLoginUrl = new URL("/admin/login", request.url);
+  const origin = getSafeOrigin(request);
+  const adminLoginUrl = new URL("/admin/login", origin);
 
   if (request.nextUrl.pathname.startsWith("/account") && !request.auth) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/login", origin);
     loginUrl.searchParams.set("callbackUrl", `${request.nextUrl.pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);
   }
@@ -50,7 +63,7 @@ export default auth(async (request) => {
       }
 
       if (isAdmin && request.nextUrl.pathname === "/admin/login") {
-        return NextResponse.redirect(new URL("/admin", request.url));
+        return NextResponse.redirect(new URL("/admin", origin));
       }
     }
     return response;

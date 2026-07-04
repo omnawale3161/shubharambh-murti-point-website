@@ -18,7 +18,7 @@ const productCatalog: Product[] = [
     slug: "premium-ganpati-murti-4-inch",
     name: "Ganpati Bappa",
     collection: "Ganpati Murti",
-    price: 999,
+    price: 1,
     size: "4 inch",
     material: "Marble dust finish",
     image: "/assets/shubharambh17.jpg",
