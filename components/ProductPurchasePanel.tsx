@@ -65,12 +65,12 @@ export function ProductPurchasePanel({ product, inventory }: { product: Product;
         <p className="mt-2 text-sm font-semibold text-green-700">Shipping: FREE · Free Delivery Across India.</p>
       </div>
 
-      <div className="sticky bottom-20 z-40 grid gap-3 rounded-3xl border border-gold/20 bg-white/95 p-3 shadow-premium backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+      <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 grid gap-3 rounded-3xl border border-gold/20 bg-white/95 p-3 shadow-premium backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
         <button
           type="button"
           disabled={outOfStock}
           onClick={() => router.push(`/checkout?productId=${encodeURIComponent(product.id)}&quantity=${quantity}&giftBox=${giftBox}`)}
-          className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-45"
+          className="btn btn-primary h-12 w-full whitespace-nowrap px-5 disabled:cursor-not-allowed disabled:opacity-45"
         >
           <Zap size={18} /> Buy Now
         </button>
@@ -78,7 +78,7 @@ export function ProductPurchasePanel({ product, inventory }: { product: Product;
           type="button"
           disabled={outOfStock}
           onClick={() => addToCart(product.id, giftBox, quantity)}
-          className="btn btn-secondary disabled:cursor-not-allowed disabled:opacity-45"
+          className="btn btn-secondary h-12 w-full whitespace-nowrap px-5 disabled:cursor-not-allowed disabled:opacity-45"
         >
           {outOfStock ? "Out of Stock" : "Add to Cart"}
         </button>
@@ -87,11 +87,11 @@ export function ProductPurchasePanel({ product, inventory }: { product: Product;
             type="button"
             onClick={() => toggleWishlist(product.id)}
             aria-pressed={wished}
-            className="btn btn-secondary px-4 text-sm"
+            className="btn btn-secondary h-12 whitespace-nowrap px-4 text-sm"
           >
             {wished ? "Wishlisted" : "Wishlist"}
           </button>
-          <a href={orderMessage(product)} target="_blank" rel="noopener noreferrer" className="btn btn-secondary px-4 text-sm">
+          <a href={orderMessage(product)} target="_blank" rel="noopener noreferrer" className="btn btn-secondary h-12 whitespace-nowrap px-4 text-sm">
             WhatsApp
           </a>
         </div>

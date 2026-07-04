@@ -32,7 +32,7 @@ export function WishlistPageClient() {
     <main className="premium-container py-14">
       <p className="section-kicker">Wishlist</p>
       <h1 className="mt-3 text-5xl font-black">Gather Your Favorite Blessings Here!</h1>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {wishlist.map((product) => <ProductCard key={product.slug} product={product} />)}
       </div>
     </main>

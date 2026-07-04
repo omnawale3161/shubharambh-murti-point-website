@@ -73,7 +73,7 @@ export default function HomePage() {
               View All Products
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {featuredProducts.map((product) => <ProductCard key={product.slug} product={product} showSecondaryActions={false} />)}
           </div>
         </div>

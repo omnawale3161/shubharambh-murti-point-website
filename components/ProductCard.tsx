@@ -17,17 +17,17 @@ export function ProductCard({
   const rating = productRating(product);
 
   return (
-    <article className="premium-card group flex h-full flex-col overflow-hidden rounded-2xl p-1.5 sm:rounded-3xl sm:p-2">
+    <article className="premium-card group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl p-2 sm:rounded-3xl">
       <div className="relative">
         <Link href={`/products/${product.slug}`} className="block">
-          <div className="relative aspect-square overflow-hidden rounded-xl bg-white sm:rounded-2xl">
+          <div className="relative h-[280px] overflow-hidden rounded-xl bg-white sm:h-[300px] sm:rounded-2xl md:h-[320px] xl:h-auto xl:aspect-square">
             <Image
               src={product.image}
               alt={product.name}
               fill
               quality={72}
-              className="object-contain p-2 transition duration-700 group-hover:scale-105 sm:p-3"
-              sizes="(max-width: 480px) 50vw, (max-width: 1024px) 33vw, (max-width: 1439px) 25vw, 20vw"
+              className="object-contain p-3 transition duration-700 group-hover:scale-105 sm:p-4"
+              sizes="(max-width: 639px) calc(100vw - 24px), (max-width: 1199px) 50vw, (max-width: 1439px) 25vw, 20vw"
             />
             <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white sm:left-3 sm:top-3 sm:px-3 sm:text-[10px]">
               {product.badge}
@@ -52,9 +52,9 @@ export function ProductCard({
         </Link>
       </div>
       <Link href={`/products/${product.slug}`} className="block flex-1">
-        <div className="flex h-full flex-col px-2 pb-3 pt-4 sm:px-3 sm:pt-5">
+        <div className="flex h-full min-w-0 flex-col px-2 pb-3 pt-4 sm:px-3 sm:pt-5">
           <p className="section-kicker">{product.collection}</p>
-          <h3 className="mt-2 line-clamp-2 min-h-[3.25rem] text-lg leading-tight text-on-surface sm:text-2xl">{product.name}</h3>
+          <h3 className="mt-2 line-clamp-2 min-h-[3rem] text-lg leading-tight text-on-surface sm:min-h-[3.5rem] sm:text-2xl">{product.name}</h3>
           <p className="mt-2 line-clamp-1 text-xs text-on-surface-variant sm:text-sm">{product.size} · {product.material}</p>
           <p className="mt-auto pt-4 text-lg font-semibold text-primary sm:text-xl">{formatPrice(product.price)}</p>
           {rating.count > 0 ? (

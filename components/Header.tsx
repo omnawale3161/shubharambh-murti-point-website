@@ -9,10 +9,10 @@ import { whatsappUrl } from "@/lib/products";
 export function Header() {
   return (
     <header className="glass-nav sticky top-0 z-50">
-      <div className="premium-container flex min-h-[72px] items-center justify-between gap-6">
+      <div className="premium-container flex min-h-14 items-center justify-between gap-3 py-1 sm:min-h-[72px] sm:gap-6 sm:py-0">
         <Link href="/" className="flex min-w-0 items-center gap-2 text-primary sm:gap-3">
-          <Image src="/assets/logo.png" alt="Shubharambh Murti Point logo" width={44} height={44} quality={75} className="rounded-full border border-outline-variant bg-white" />
-          <span className="truncate font-serif text-lg sm:text-2xl">Shubharambh Murti Point</span>
+          <Image src="/assets/logo.png" alt="Shubharambh Murti Point logo" width={44} height={44} quality={75} className="h-9 w-9 rounded-full border border-outline-variant bg-white sm:h-11 sm:w-11" />
+          <span className="truncate font-serif text-base leading-none sm:text-2xl">Shubharambh Murti Point</span>
         </Link>
         <HeaderNav />
         <HeaderShopLinks />

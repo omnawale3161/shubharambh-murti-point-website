@@ -76,7 +76,7 @@ function MobileMenuContent() {
         </nav>
       </div>
       <div
-        className={`fixed inset-0 top-[72px] z-40 bg-ink/20 backdrop-blur-[2px] transition-opacity duration-200 ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+        className={`fixed inset-0 top-14 z-40 bg-ink/20 backdrop-blur-[2px] transition-opacity duration-200 sm:top-[72px] ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
         aria-hidden="true"
         onPointerDown={() => setOpen(false)}
       />

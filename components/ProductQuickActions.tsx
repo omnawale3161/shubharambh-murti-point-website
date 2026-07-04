@@ -18,13 +18,13 @@ export function ProductQuickActions({
   const wished = isWishlisted(product.id);
 
   return (
-    <div className={showSecondaryActions ? "mt-auto grid grid-cols-[1fr_auto_auto] gap-2 px-2 pb-2 sm:px-3 sm:pb-3" : "mt-auto grid gap-2 px-2 pb-2 sm:px-3 sm:pb-3"}>
+    <div className={showSecondaryActions ? "mt-auto grid grid-cols-[minmax(0,1fr)_auto_auto] items-stretch gap-2 px-2 pb-2 sm:px-3 sm:pb-3" : "mt-auto grid items-stretch gap-2 px-2 pb-2 sm:px-3 sm:pb-3"}>
       {outOfStock ? (
-        <button type="button" disabled className="btn btn-primary min-h-11 px-3 py-2 text-xs opacity-45 sm:min-h-12 sm:px-4 sm:py-3 sm:text-sm">
+        <button type="button" disabled className="btn btn-primary h-11 min-h-11 w-full whitespace-nowrap px-3 py-2 text-xs opacity-45 sm:h-12 sm:min-h-12 sm:px-4 sm:py-3 sm:text-sm">
           Out of Stock
         </button>
       ) : (
-        <Link href={`/checkout?productId=${product.id}&quantity=1&giftBox=false`} className="btn btn-primary min-h-11 px-3 py-2 text-xs sm:min-h-12 sm:px-4 sm:py-3 sm:text-sm">
+        <Link href={`/checkout?productId=${product.id}&quantity=1&giftBox=false`} className="btn btn-primary h-11 min-h-11 w-full whitespace-nowrap px-3 py-2 text-xs sm:h-12 sm:min-h-12 sm:px-4 sm:py-3 sm:text-sm">
           Buy Now
         </Link>
       )}

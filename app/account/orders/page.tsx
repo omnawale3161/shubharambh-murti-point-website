@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CalendarDays, CreditCard, MapPinned, PackageCheck, Truck } from "lucide-react";
 import { auth } from "@/auth";
+import { AccountUnavailable } from "@/components/AccountUnavailable";
 import { getCustomerById, getCustomerOrders } from "@/lib/auth";
 import { orderStatusLabel, paymentMethodLabel } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
@@ -24,9 +25,24 @@ function paymentStatus(status: string, method?: string | null) {
 export default async function OrdersPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/account/orders");
-  const customer = await getCustomerById(session.user.id);
-  if (!customer) redirect("/login");
-  const orders = await getCustomerOrders(customer.id);
+
+  const customerResult = await getCustomerById(session.user.id)
+    .then((customer) => ({ customer, failed: false }))
+    .catch((error: unknown) => {
+      console.error("Customer account could not be loaded", error);
+      return { customer: null, failed: true };
+    });
+  const { customer } = customerResult;
+  if (!customer) {
+    if (customerResult.failed) return <AccountUnavailable />;
+    redirect("/login");
+  }
+
+  const orders = await getCustomerOrders(customer.id).catch((error: unknown) => {
+    console.error("Customer orders could not be loaded", error);
+    return null;
+  });
+  if (!orders) return <AccountUnavailable message="We loaded your session, but could not load your orders right now." />;
 
   return (
     <main className="premium-container py-10 md:py-24">

@@ -136,7 +136,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <h2 className="mt-3 text-4xl text-primary">Related Products</h2>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
             {relatedProducts.map((item) => <ProductCard key={item.slug} product={item} />)}
           </div>
         </section>

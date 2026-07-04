@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Download, MessageCircle, PackageCheck, Truck } from "lucide-react";
 import { auth } from "@/auth";
+import { AccountUnavailable } from "@/components/AccountUnavailable";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { getCustomerById, getCustomerOrders } from "@/lib/auth";
@@ -27,9 +28,26 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/account/orders");
   const { id } = await params;
-  const customer = await getCustomerById(session.user.id);
-  if (!customer) redirect("/login");
-  const order = (await getCustomerOrders(customer.id)).find((item) => item.id === id);
+
+  const customerResult = await getCustomerById(session.user.id)
+    .then((customer) => ({ customer, failed: false }))
+    .catch((error: unknown) => {
+      console.error("Customer account could not be loaded", error);
+      return { customer: null, failed: true };
+    });
+  const { customer } = customerResult;
+  if (!customer) {
+    if (customerResult.failed) return <AccountUnavailable />;
+    redirect("/login");
+  }
+
+  const orders = await getCustomerOrders(customer.id).catch((error: unknown) => {
+    console.error("Customer orders could not be loaded", error);
+    return null;
+  });
+  if (!orders) return <AccountUnavailable message="We loaded your session, but could not load this order right now." />;
+
+  const order = orders.find((item) => item.id === id);
   if (!order) notFound();
 
   const supportHref = `${whatsappUrl}?text=${encodeURIComponent(`Namaste, I need help tracking order ${order.id}.`)}`;

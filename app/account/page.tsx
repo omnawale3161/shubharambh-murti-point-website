@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AccountPanel } from "@/components/AccountPanel";
+import { AccountUnavailable } from "@/components/AccountUnavailable";
 import { getCustomerById, getCustomerOrders } from "@/lib/auth";
 import { privatePageMetadata } from "@/lib/seo";
 
@@ -10,10 +11,23 @@ export default async function AccountPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login?callbackUrl=/account");
 
-  const customer = await getCustomerById(session.user.id);
-  if (!customer) redirect("/login");
+  const customerResult = await getCustomerById(session.user.id)
+    .then((customer) => ({ customer, failed: false }))
+    .catch((error: unknown) => {
+      console.error("Customer account could not be loaded", error);
+      return { customer: null, failed: true };
+    });
+  const { customer } = customerResult;
+  if (!customer) {
+    if (customerResult.failed) return <AccountUnavailable />;
+    redirect("/login");
+  }
 
-  const orders = await getCustomerOrders(customer.id);
+  const orders = await getCustomerOrders(customer.id).catch((error: unknown) => {
+    console.error("Customer orders could not be loaded", error);
+    return null;
+  });
+  if (!orders) return <AccountUnavailable message="We loaded your session, but could not load your orders right now." />;
 
   return (
     <main className="premium-container py-10 md:py-14">

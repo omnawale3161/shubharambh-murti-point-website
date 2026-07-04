@@ -5,6 +5,7 @@ import {
   parseCredentials,
   verifyPassword
 } from "@/lib/auth";
+import { MissingSupabaseConfigurationError, SupabaseServerRequestError } from "@/lib/supabase/server";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -20,15 +21,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = parseCredentials(credentials);
         if (!parsed) return null;
 
-        const customer = await getCustomerCredentialByEmail(parsed.email);
-        if (!customer || !(await verifyPassword(parsed.password, customer.password_hash))) return null;
+        try {
+          const customer = await getCustomerCredentialByEmail(parsed.email);
+          if (!customer) {
+            console.warn("Customer login failed: no account found for email.");
+            return null;
+          }
 
-        return {
-          id: customer.id,
-          name: customer.name,
-          email: customer.email,
-          phone: customer.phone
-        };
+          if (!(await verifyPassword(parsed.password, customer.password_hash))) {
+            console.warn("Customer login failed: password did not match stored hash.");
+            return null;
+          }
+
+          return {
+            id: customer.id,
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone
+          };
+        } catch (error) {
+          if (error instanceof MissingSupabaseConfigurationError) {
+            console.error("Customer login failed: missing Supabase configuration.", error.missingVariables);
+          } else if (error instanceof SupabaseServerRequestError) {
+            console.error("Customer login failed: Supabase request error.", {
+              status: error.status,
+              responseBody: error.responseBody
+            });
+          } else {
+            console.error("Customer login failed: unexpected authentication error.", error);
+          }
+
+          throw error;
+        }
       }
     })
   ],

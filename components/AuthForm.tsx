@@ -59,7 +59,13 @@ export function AuthForm({ mode, callbackUrl = "/account" }: { mode: Mode; callb
       });
 
       if (result?.error || result?.ok === false) {
-        throw new Error(isRegister ? "Account created, but automatic login failed. Please login." : "Invalid email or password.");
+        const isBadCredentials = result?.error === "CredentialsSignin";
+        const message = isBadCredentials
+          ? isRegister
+            ? "Account created, but automatic login failed. Please login."
+            : "Invalid email or password."
+          : "Login service is temporarily unavailable. Please try again in a few minutes.";
+        throw new Error(message);
       }
 
       window.location.assign(safeRedirectTarget(result?.url, callbackUrl));

@@ -347,7 +347,7 @@ select {
 
 @media (max-width: 639px) {
   body {
-    padding-bottom: 84px;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
 
   .premium-container {
