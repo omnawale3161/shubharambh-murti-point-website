@@ -10,8 +10,11 @@ import type { Database } from "@/lib/supabase/database.types";
  * which previously caused production redirects to point at localhost.
  */
 function getSafeOrigin(request: NextRequest) {
-  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
-  const proto = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    request.nextUrl.protocol.replace(":", "");
   return host ? `${proto}://${host}` : request.nextUrl.origin;
 }
 
@@ -21,12 +24,18 @@ export default auth(async (request) => {
 
   if (request.nextUrl.pathname.startsWith("/account") && !request.auth) {
     const loginUrl = new URL("/login", origin);
-    loginUrl.searchParams.set("callbackUrl", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+    loginUrl.searchParams.set(
+      "callbackUrl",
+      `${request.nextUrl.pathname}${request.nextUrl.search}`
+    );
     return NextResponse.redirect(loginUrl);
   }
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (
+      !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ) {
       return request.nextUrl.pathname === "/admin/login"
         ? NextResponse.next()
         : NextResponse.redirect(adminLoginUrl);
@@ -40,21 +49,31 @@ export default auth(async (request) => {
         cookies: {
           getAll: () => request.cookies.getAll(),
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            );
             response = NextResponse.next({ request });
-            cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-          }
-        }
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            );
+          },
+        },
       }
     );
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user && request.nextUrl.pathname !== "/admin/login") {
       adminLoginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
       return NextResponse.redirect(adminLoginUrl);
     }
 
     if (user) {
-      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
       const isAdmin = profile?.role === "admin";
 
       if (!isAdmin && request.nextUrl.pathname !== "/admin/login") {
@@ -71,5 +90,5 @@ export default auth(async (request) => {
 });
 
 export const config = {
-  matcher: ["/account/:path*", "/admin/:path*"]
+  matcher: ["/account/:path*", "/admin/:path*"],
 };
