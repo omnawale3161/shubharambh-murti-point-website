@@ -112,7 +112,7 @@ export async function deleteProductAction(formData: FormData) {
 
 export async function syncCatalogProductsAction() {
   const { supabase } = await requireAdmin();
-  await syncCatalogProductsToDatabase(supabase, { overwriteExisting: true });
+  await syncCatalogProductsToDatabase(supabase);
   revalidatePath("/admin/products");
   revalidatePath("/");
   revalidatePath("/collections");

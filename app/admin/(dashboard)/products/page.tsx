@@ -5,13 +5,11 @@ import { deleteProductAction, syncCatalogProductsAction } from "@/app/admin/acti
 import { AdminCard, AdminEmptyState, AdminPageHeader, AdminStatusBadge, AdminTableShell } from "@/components/admin/AdminUI";
 import { ImageUploadForm } from "@/components/admin/ImageUploadForm";
 import { requireAdmin } from "@/lib/backend/auth";
-import { syncCatalogProductsToDatabase } from "@/lib/backend/catalog-sync";
 import { inventoryAvailability } from "@/lib/inventory";
 import { formatPrice } from "@/lib/products";
 
 export default async function AdminProductsPage() {
   const { supabase } = await requireAdmin();
-  await syncCatalogProductsToDatabase(supabase);
   const { data: products, error } = await supabase
     .from("products")
     .select("id,name,slug,sku,price_paise,compare_at_price_paise,stock,reserved_stock,low_stock_threshold,is_active,is_featured,badge,image_url")
@@ -34,7 +32,7 @@ export default async function AdminProductsPage() {
         action={
           <div className="flex flex-wrap gap-2">
             <form action={syncCatalogProductsAction}>
-              <button className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"><DatabaseZap size={17} />Sync catalog</button>
+              <button className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"><DatabaseZap size={17} />Import catalog</button>
             </form>
             <Link href="/admin/inventory" className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:border-amber-300 hover:text-amber-700">Manage inventory</Link>
             <Link href="/admin/products/new" className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700"><Plus size={17} />Add product</Link>

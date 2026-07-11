@@ -1,7 +1,7 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { collections, getProductById, getProductBySlug, products } from "./catalog";
-import { mergeStorefrontProducts, type StorefrontProductRow } from "./storefront-merge";
+import { databaseStorefrontProducts, type StorefrontProductRow } from "./storefront-merge";
 
 async function databaseProductRows() {
   try {
@@ -11,7 +11,7 @@ async function databaseProductRows() {
       .select("id,category_id,name,slug,description,price_paise,stock_count,sku,image_url,material,size,badge,is_active,categories(name,slug)")
       .order("created_at", { ascending: false });
 
-    if (error || !data?.length) return null;
+    if (error) return null;
     return data.map((row) => row as unknown as StorefrontProductRow);
   } catch {
     return null;
@@ -20,7 +20,7 @@ async function databaseProductRows() {
 
 export async function getStorefrontProducts() {
   const database = await databaseProductRows();
-  return mergeStorefrontProducts(products, database);
+  return database === null ? products : databaseStorefrontProducts(database);
 }
 
 export async function getStorefrontCollections() {

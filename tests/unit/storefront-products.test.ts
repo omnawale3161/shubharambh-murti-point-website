@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { products } from "@/lib/products";
-import { mergeStorefrontProducts, type StorefrontProductRow } from "@/lib/products/storefront-merge";
+import {
+  databaseStorefrontProducts,
+  mergeStorefrontProducts,
+  type StorefrontProductRow
+} from "@/lib/products/storefront-merge";
 
 function productRow(row: Partial<StorefrontProductRow> = {}): StorefrontProductRow {
   return {
@@ -22,6 +26,20 @@ function productRow(row: Partial<StorefrontProductRow> = {}): StorefrontProductR
 }
 
 describe("storefront product merge", () => {
+  it("uses active database products as the admin-managed storefront list", () => {
+    const storefrontProducts = databaseStorefrontProducts([
+      productRow({ id: "db-product-1", sku: "ganpati-001", slug: "admin-ganpati" }),
+      productRow({ id: "db-product-2", sku: "hidden-001", slug: "hidden-product", is_active: false })
+    ]);
+
+    expect(storefrontProducts).toHaveLength(1);
+    expect(storefrontProducts[0]).toMatchObject({
+      id: "ganpati-001",
+      slug: "admin-ganpati",
+      name: "Admin Product"
+    });
+  });
+
   it("keeps the full catalog when only a small admin product set exists", () => {
     const merged = mergeStorefrontProducts(products, [
       productRow({ id: "db-product-1", slug: "admin-ganpati" }),

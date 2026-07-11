@@ -14,6 +14,17 @@ function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 180);
 }
 
+function uniqueSlug(value: string, existingSlugs: readonly string[]) {
+  const base = slugify(value);
+  if (!base) return "";
+  const taken = new Set(existingSlugs);
+  if (!taken.has(base)) return base;
+
+  let suffix = 2;
+  while (taken.has(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
+
 export function ProductForm({ categories, existingSlugs = [], product }: { categories: Category[]; existingSlugs?: string[]; product?: ProductRecord }) {
   const [state, action, pending] = useActionState(saveProductAction, initialState);
   const [name, setName] = useState(product?.name || "");
@@ -38,7 +49,7 @@ export function ProductForm({ categories, existingSlugs = [], product }: { categ
             <label className={label}>Name<input required name="name" value={name} onChange={(event) => {
               const nextName = event.target.value;
               setName(nextName);
-              if (!slugEdited) setSlug(slugify(nextName));
+              if (!slugEdited) setSlug(uniqueSlug(nextName, existingSlugs));
             }} className={input} /></label>
             <label className={label}>Slug<input name="slug" value={slug} onChange={(event) => {
               setSlugEdited(true);

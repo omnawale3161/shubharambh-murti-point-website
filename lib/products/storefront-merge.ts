@@ -37,6 +37,12 @@ function fromDatabaseProduct(row: StorefrontProductRow, base?: Product): Product
   };
 }
 
+export function databaseStorefrontProducts(databaseProducts: readonly StorefrontProductRow[]) {
+  return databaseProducts
+    .filter((row) => row.is_active)
+    .map((row) => fromDatabaseProduct(row));
+}
+
 export function mergeStorefrontProducts(
   catalogProducts: readonly Product[],
   databaseProducts: readonly StorefrontProductRow[] | null
