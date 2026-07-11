@@ -3,10 +3,11 @@ import { deleteCategoryAction } from "@/app/admin/actions";
 import { CategoryForm } from "@/components/admin/CategoryForm";
 import { AdminEmptyState, AdminPageHeader } from "@/components/admin/AdminUI";
 import { requireAdmin } from "@/lib/backend/auth";
+import { listAdminCategories } from "@/lib/backend/categories";
 
 export default async function AdminCategoriesPage() {
   const { supabase } = await requireAdmin();
-  const { data: categories, error } = await supabase.from("categories").select("*").order("sort_order");
+  const { data: categories, error } = await listAdminCategories(supabase);
   if (error) throw error;
 
   return (

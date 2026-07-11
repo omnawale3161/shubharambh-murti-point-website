@@ -1,4 +1,5 @@
 import type { PersistedOrder } from "@/lib/payments";
+import { paidOrderStatuses } from "@/lib/orders/status";
 import type { ProductRecord } from "@/lib/supabase/database.types";
 
 export type InventoryAvailability = {
@@ -23,7 +24,7 @@ export function inventoryAvailability(product: Pick<ProductRecord, "stock" | "re
 }
 
 export function salesReport(orders: PersistedOrder[]) {
-  const completed = orders.filter((order) => ["paid", "confirmed", "packed", "shipped", "delivered"].includes(order.status));
+  const completed = orders.filter((order) => paidOrderStatuses.has(order.status));
   const productSales = new Map<string, { name: string; quantity: number; revenuePaise: number }>();
   const dailyRevenue = new Map<string, number>();
   const monthlyRevenue = new Map<string, number>();

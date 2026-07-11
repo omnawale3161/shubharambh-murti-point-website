@@ -1,6 +1,7 @@
 import { AdminCard, AdminEmptyState, AdminPageHeader, AdminStatusBadge } from "@/components/admin/AdminUI";
 import { requireAdmin } from "@/lib/backend/auth";
 import { inventoryAvailability, salesReport } from "@/lib/inventory";
+import { paidOrderStatuses } from "@/lib/orders";
 import { getOrderPersistenceConfig, listOrders } from "@/lib/payments";
 import { formatPrice } from "@/lib/products";
 
@@ -14,7 +15,7 @@ export default async function AdminReportsPage() {
   const inventory = products.data || [];
   const monthly = report.monthlyRevenue.slice(0, 12);
   const maxMonth = Math.max(...monthly.map(([, paise]) => paise), 1);
-  const paidOrders = orders.filter((order) => ["paid", "confirmed", "packed", "shipped", "delivered"].includes(order.status));
+  const paidOrders = orders.filter((order) => paidOrderStatuses.has(order.status));
   const totalRevenuePaise = paidOrders.reduce((sum, order) => sum + order.amount_paise, 0);
   const visitors = "Connect analytics";
 

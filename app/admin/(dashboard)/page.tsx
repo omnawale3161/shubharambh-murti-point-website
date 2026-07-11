@@ -4,7 +4,7 @@ import { AdminCard, AdminEmptyState, AdminPageHeader, AdminStatCard, AdminStatus
 import { requireAdmin } from "@/lib/backend/auth";
 import { formatPrice } from "@/lib/products";
 import { salesReport } from "@/lib/inventory";
-import { orderStatusLabel } from "@/lib/orders";
+import { orderStatusLabel, paidOrderStatuses, pendingOrderStatuses } from "@/lib/orders";
 import { getOrderPersistenceConfig, listOrders } from "@/lib/payments";
 
 export default async function AdminDashboardPage() {
@@ -13,13 +13,11 @@ export default async function AdminDashboardPage() {
     supabase.from("products").select("id,name,sku,stock,reserved_stock,low_stock_threshold,is_active").order("updated_at", { ascending: false }),
     listOrders(getOrderPersistenceConfig())
   ]);
-  const paidStatuses = new Set(["paid", "confirmed", "packed", "shipped", "delivered"]);
-  const pendingStatuses = new Set(["created", "cod_pending", "payment_authorized"]);
-  const totalRevenue = orders.filter((order) => paidStatuses.has(order.status)).reduce((sum, order) => sum + order.amount_paise, 0) / 100;
+  const totalRevenue = orders.filter((order) => paidOrderStatuses.has(order.status)).reduce((sum, order) => sum + order.amount_paise, 0) / 100;
   const productRows = products.data || [];
   const lowStock = productRows.filter((product) => product.stock - product.reserved_stock > 0 && product.stock - product.reserved_stock <= product.low_stock_threshold).length;
   const outOfStock = productRows.filter((product) => product.stock - product.reserved_stock <= 0).length;
-  const pendingOrders = orders.filter((order) => pendingStatuses.has(order.status)).length;
+  const pendingOrders = orders.filter((order) => pendingOrderStatuses.has(order.status)).length;
   const uniqueCustomers = new Set(orders.map((order) => order.customer_email || order.customer_phone).filter(Boolean)).size;
   const report = salesReport(orders);
   const monthly = report.monthlyRevenue.slice(0, 6);
@@ -44,7 +42,7 @@ export default async function AdminDashboardPage() {
         <AdminStatCard label="Low Stock" value={lowStock} meta="Needs replenishment" href="/admin/inventory?status=low" icon={AlertTriangle} tone="amber" />
         <AdminStatCard label="Out of Stock" value={outOfStock} meta="Unavailable products" href="/admin/inventory?status=out" icon={PackageX} tone="rose" />
         <AdminStatCard label="Pending Orders" value={pendingOrders} meta="Created or authorized" href="/admin/orders?status=pending" icon={PackageCheck} tone="blue" />
-        <AdminStatCard label="Paid Orders" value={orders.filter((order) => paidStatuses.has(order.status)).length} meta="Ready operational pipeline" href="/admin/orders?status=paid" icon={ClipboardList} tone="green" />
+        <AdminStatCard label="Paid Orders" value={orders.filter((order) => paidOrderStatuses.has(order.status)).length} meta="Ready operational pipeline" href="/admin/orders?status=paid" icon={ClipboardList} tone="green" />
       </div>
       <div className="mt-8 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <AdminCard>
@@ -98,7 +96,7 @@ export default async function AdminDashboardPage() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="truncate font-mono text-xs font-black text-amber-700">{order.id}</p>
-                  <AdminStatusBadge tone={paidStatuses.has(order.status) ? "green" : pendingStatuses.has(order.status) ? "amber" : order.status === "cancelled" || order.status === "payment_failed" ? "red" : "slate"}>{orderStatusLabel(order.status)}</AdminStatusBadge>
+                  <AdminStatusBadge tone={paidOrderStatuses.has(order.status) ? "green" : pendingOrderStatuses.has(order.status) ? "amber" : order.status === "cancelled" || order.status === "payment_failed" ? "red" : "slate"}>{orderStatusLabel(order.status)}</AdminStatusBadge>
                 </div>
                 <p className="mt-2 font-black text-slate-950">{order.product_name}</p>
                 <p className="mt-1 text-sm text-slate-500">{order.customer_email || "No email"} · {order.customer_phone || "No phone"}</p>

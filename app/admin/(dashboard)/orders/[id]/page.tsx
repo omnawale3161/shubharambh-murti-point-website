@@ -4,13 +4,10 @@ import { Download, Printer, Save, Truck } from "lucide-react";
 import { updateOrderStatusAction } from "@/app/admin/actions";
 import { AdminCard, AdminPageHeader, AdminStatusBadge } from "@/components/admin/AdminUI";
 import { requireAdmin } from "@/lib/backend/auth";
-import { formatOrderAddress, orderStatusLabel, paymentMethodLabel } from "@/lib/orders";
+import { formatOrderAddress, orderStatusLabel, orderStatuses, paidOrderStatuses, paymentMethodLabel } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
-import { getOrderById, getOrderPersistenceConfig, type OrderStatus } from "@/lib/payments";
+import { getOrderById, getOrderPersistenceConfig } from "@/lib/payments";
 import { OrderTimeline } from "@/components/orders/OrderTimeline";
-
-const statuses: OrderStatus[] = ["created", "cod_pending", "payment_authorized", "paid", "confirmed", "packed", "shipped", "delivered", "cancelled", "payment_failed"];
-const paid = new Set(["paid", "confirmed", "packed", "shipped", "delivered"]);
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -28,7 +25,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       />
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         <AdminCard><p className="text-sm font-bold text-slate-500">Order total</p><p className="mt-2 text-3xl font-black text-slate-950">{formatPrice(order.amount_paise / 100)}</p></AdminCard>
-        <AdminCard><p className="text-sm font-bold text-slate-500">Payment</p><div className="mt-3"><AdminStatusBadge tone={paid.has(order.status) ? "green" : order.status === "payment_failed" ? "red" : "amber"}>{paid.has(order.status) ? "Paid" : order.status === "payment_failed" ? "Failed" : "Pending"}</AdminStatusBadge></div></AdminCard>
+        <AdminCard><p className="text-sm font-bold text-slate-500">Payment</p><div className="mt-3"><AdminStatusBadge tone={paidOrderStatuses.has(order.status) ? "green" : order.status === "payment_failed" ? "red" : "amber"}>{paidOrderStatuses.has(order.status) ? "Paid" : order.status === "payment_failed" ? "Failed" : "Pending"}</AdminStatusBadge></div></AdminCard>
         <AdminCard><p className="text-sm font-bold text-slate-500">Fulfilment</p><p className="mt-2 text-2xl font-black text-amber-700">{orderStatusLabel(order.status)}</p></AdminCard>
       </div>
       <AdminCard className="mt-6">
@@ -68,7 +65,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <form action={updateOrderStatusAction} className="grid h-fit gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
           <h2 className="text-xl font-black text-slate-950">Update Fulfilment</h2>
           <input type="hidden" name="id" value={order.id} />
-          <label className="grid gap-1.5 text-sm font-black text-slate-800">Status<select name="status" defaultValue={order.status} className="h-11 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10">{statuses.map((status) => <option key={status} value={status}>{orderStatusLabel(status)}</option>)}</select></label>
+          <label className="grid gap-1.5 text-sm font-black text-slate-800">Status<select name="status" defaultValue={order.status} className="h-11 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10">{orderStatuses.map((status) => <option key={status} value={status}>{orderStatusLabel(status)}</option>)}</select></label>
           <label className="grid gap-1.5 text-sm font-black text-slate-800">Tracking Number<input name="trackingNumber" defaultValue={order.tracking_number || ""} className="h-11 rounded-xl border border-slate-200 px-3 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10" /></label>
           <button className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700"><Save size={17} />Save Order Status</button>
         </form>

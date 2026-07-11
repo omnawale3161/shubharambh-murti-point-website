@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { instagramUrl, products, ugcGallery } from "@/lib/products";
+import { instagramUrl, ugcGallery } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
 import { createPageMetadata } from "@/lib/seo";
+import { getStorefrontProducts } from "@/lib/products/storefront";
 
 export const metadata = createPageMetadata({
   title: "Premium Handcrafted Murtis & Spiritual Decor",
@@ -10,7 +11,6 @@ export const metadata = createPageMetadata({
   path: "/"
 });
 
-const featuredProducts = products.slice(0, 3);
 const instagramGallery = [
   ...ugcGallery,
   "/assets/bappa5.png",
@@ -24,7 +24,9 @@ const stats = [
   ["Safe", "Secure packing"]
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredProducts = (await getStorefrontProducts()).slice(0, 3);
+
   return (
     <main>
       <section className="premium-container grid min-h-[720px] items-center gap-12 py-16 md:grid-cols-[0.95fr_1.05fr]">
@@ -69,7 +71,7 @@ export default function HomePage() {
               <p className="section-kicker">Curated collection</p>
               <h2 className="mt-3 text-4xl text-primary md:text-5xl">Best Sellers</h2>
             </div>
-            <Link href="/collections" className="text-sm font-bold text-primary underline-offset-4 hover:underline">
+            <Link href="/collections" className="btn btn-secondary">
               View All Products
             </Link>
           </div>

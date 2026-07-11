@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Eye, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { ProductQuickActions } from "@/components/ProductQuickActions";
 import { formatPrice, Product, productRating } from "@/lib/products";
 import type { InventoryAvailability } from "@/lib/inventory";
@@ -8,7 +8,7 @@ import type { InventoryAvailability } from "@/lib/inventory";
 export function ProductCard({
   product,
   inventory,
-  showSecondaryActions = true
+  showSecondaryActions = true,
 }: {
   product: Product;
   inventory?: InventoryAvailability;
@@ -43,30 +43,45 @@ export function ProductCard({
             ) : null}
           </div>
         </Link>
-        <Link
+        {/* <Link
           href={`/products/${product.slug}`}
           aria-label={`Quick view ${product.name}`}
           className="absolute bottom-2 left-2 hidden h-9 w-9 place-items-center rounded-full bg-white text-primary shadow-card transition hover:-translate-y-0.5 sm:grid"
         >
           <Eye size={18} />
-        </Link>
+        </Link> */}
       </div>
       <Link href={`/products/${product.slug}`} className="block flex-1">
         <div className="flex h-full min-w-0 flex-col px-2 pb-3 pt-4 sm:px-3 sm:pt-5">
           <p className="section-kicker">{product.collection}</p>
-          <h3 className="mt-2 line-clamp-2 min-h-[3rem] text-lg leading-tight text-on-surface sm:min-h-[3.5rem] sm:text-2xl">{product.name}</h3>
-          <p className="mt-2 line-clamp-1 text-xs text-on-surface-variant sm:text-sm">{product.size} · {product.material}</p>
-          <p className="mt-auto pt-4 text-lg font-semibold text-primary sm:text-xl">{formatPrice(product.price)}</p>
+          <h3 className="mt-2 line-clamp-2 min-h-[3rem] text-lg leading-tight text-on-surface sm:min-h-[3.5rem] sm:text-2xl">
+            {product.name}
+          </h3>
+          <p className="mt-2 line-clamp-1 text-xs text-on-surface-variant sm:text-sm">
+            {product.size} · {product.material}
+          </p>
+          <p className="mt-auto pt-4 text-lg font-semibold text-primary sm:text-xl">
+            {formatPrice(product.price)}
+          </p>
           {rating.count > 0 ? (
-            <p className="mt-2 flex items-center gap-1 text-sm font-black text-gold" aria-label={`${rating.rating} star rating from ${rating.count} reviews`}>
+            <p
+              className="mt-2 flex items-center gap-1 text-sm font-black text-gold"
+              aria-label={`${rating.rating} star rating from ${rating.count} reviews`}
+            >
               <Star size={15} fill="currentColor" />
               <span>{rating.rating}</span>
-              <span className="hidden text-on-surface-variant sm:inline">({rating.count} reviews)</span>
+              <span className="hidden text-on-surface-variant sm:inline">
+                ({rating.count} reviews)
+              </span>
             </p>
           ) : null}
         </div>
       </Link>
-      <ProductQuickActions product={product} outOfStock={inventory?.isOutOfStock} showSecondaryActions={showSecondaryActions} />
+      <ProductQuickActions
+        product={product}
+        outOfStock={inventory?.isOutOfStock}
+        showSecondaryActions={showSecondaryActions}
+      />
     </article>
   );
 }

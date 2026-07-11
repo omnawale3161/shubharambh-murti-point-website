@@ -7,6 +7,8 @@ import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { getCustomerById, getCustomerOrders } from "@/lib/auth";
 import { orderStatusLabel, paymentMethodLabel } from "@/lib/orders";
+import { paidOrderStatuses } from "@/lib/orders/status";
+import type { OrderStatus } from "@/lib/payments";
 import { formatPrice, whatsappUrl } from "@/lib/products";
 import { privatePageMetadata } from "@/lib/seo";
 
@@ -17,10 +19,10 @@ function formatDate(value?: string | null) {
   return new Date(value.includes("T") ? value : `${value}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 }
 
-function paymentStatus(status: string, method?: string | null) {
+function paymentStatus(status: OrderStatus, method?: string | null) {
   if (status === "payment_failed") return "Payment Failed";
   if (status === "cod_pending") return "Cash on Delivery";
-  if (["paid", "confirmed", "packed", "shipped", "delivered"].includes(status)) return "Paid";
+  if (paidOrderStatuses.has(status)) return "Paid";
   return method ? paymentMethodLabel(method) : "Pending";
 }
 

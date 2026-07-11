@@ -1,5 +1,5 @@
 import { ProductCard } from "@/components/ProductCard";
-import { products } from "@/lib/products";
+import { getStorefrontProducts } from "@/lib/products/storefront";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata = createPageMetadata({
@@ -11,6 +11,7 @@ export const metadata = createPageMetadata({
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const query = (await searchParams).q?.trim() || "";
   const normalized = query.toLowerCase();
+  const products = await getStorefrontProducts();
   const results = normalized
     ? products.filter((product) => `${product.name} ${product.collection} ${product.material}`.toLowerCase().includes(normalized))
     : products;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { CreditCard, Landmark, Smartphone, Truck } from "lucide-react";
-import { getProductById, formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/products";
 import { calculateCheckoutPricing, type CartItem, type CheckoutAddress, type PaymentMethod } from "@/lib/shop";
 import { useShop } from "@/components/ShopProvider";
 import { PincodeChecker } from "@/components/pincode-checker";
@@ -57,7 +57,7 @@ async function responseJson<T>(response: Response) {
 
 export function CheckoutPageClient() {
   const searchParams = useSearchParams();
-  const { cart, clearCart, isHydrated } = useShop();
+  const { cart, clearCart, getProductById, isHydrated } = useShop();
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("razorpay_upi");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState("");
@@ -69,7 +69,7 @@ export function CheckoutPageClient() {
     const product = getProductById(productId);
     const quantity = Math.min(10, Math.max(1, Number(searchParams.get("quantity")) || 1));
     return product ? [{ productId, product, quantity, options: { giftBox: searchParams.get("giftBox") === "true" } }] : [];
-  }, [cart, searchParams]);
+  }, [cart, getProductById, searchParams]);
   const isBuyNow = Boolean(searchParams.get("productId"));
   const pricing = calculateCheckoutPricing(checkoutItems);
   const totalQuantity = checkoutItems.reduce((sum, item) => sum + item.quantity, 0);

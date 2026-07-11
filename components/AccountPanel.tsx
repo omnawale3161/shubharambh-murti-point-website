@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { CalendarDays, CreditCard, Home, MapPinned, PackageCheck, ReceiptText, Truck } from "lucide-react";
+import { paidOrderStatuses } from "@/lib/orders/status";
 import { formatPrice } from "@/lib/products";
 import type { Customer, CustomerOrder } from "@/lib/auth";
 
@@ -18,7 +19,7 @@ function statusLabel(status: string) {
 function paymentStatusLabel(order: CustomerOrder) {
   if (order.status === "payment_failed") return "Payment Failed";
   if (order.status === "cod_pending") return "Cash on Delivery";
-  if (["paid", "confirmed", "packed", "shipped", "delivered"].includes(order.status)) return "Paid";
+  if (paidOrderStatuses.has(order.status)) return "Paid";
   return order.payment_method ? statusLabel(order.payment_method) : "Pending";
 }
 

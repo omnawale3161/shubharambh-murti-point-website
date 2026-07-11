@@ -1,1 +1,1 @@
-export { GET, revalidate } from "@/app/api/products/search/route";
+export { dynamic, GET } from "@/app/api/products/search/route";

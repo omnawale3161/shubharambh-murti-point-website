@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { products } from "@/lib/products";
+import { getStorefrontProducts } from "@/lib/products/storefront";
 import { absoluteUrl } from "@/lib/seo";
 
 const publicRoutes = [
@@ -12,8 +12,9 @@ const publicRoutes = [
   "/shipping-policy"
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const products = await getStorefrontProducts();
 
   return [
     ...publicRoutes.map((path) => ({

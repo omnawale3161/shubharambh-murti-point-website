@@ -19,6 +19,7 @@ function itemsHtml(order: PersistedOrder) {
 function brandedEmail(order: PersistedOrder, admin = false) {
   const address = order.delivery_address;
   const title = admin ? "A new order has arrived" : "Your order is confirmed";
+  const greetingName = admin ? `${siteConfig.name} team` : address?.fullName || "Customer";
   return `<!doctype html><html><body style="margin:0;background:#fff7f7;font-family:Arial,sans-serif;color:#2c2022">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:28px 12px">
       <table role="presentation" width="100%" style="max-width:640px;background:white;border:1px solid #ead9dc;border-radius:12px;overflow:hidden">
@@ -27,7 +28,7 @@ function brandedEmail(order: PersistedOrder, admin = false) {
           <h1 style="margin:12px 0 0;font-size:26px">${title}</h1>
         </td></tr>
         <tr><td style="padding:28px">
-          <p style="font-size:17px">Namaste ${escapeHtml(address?.fullName || "Customer")},</p>
+          <p style="font-size:17px">Namaste ${escapeHtml(greetingName)},</p>
           <p>${admin ? "Please prepare this order for fulfilment." : "Thank you for choosing Shubharambh Murti Point. We have received your order."}</p>
           <p><strong>Order ID:</strong> ${order.id}<br><strong>Payment:</strong> ${escapeHtml(paymentMethodLabel(order.payment_method))}<br><strong>Status:</strong> ${escapeHtml(order.status)}<br><strong>Estimated delivery:</strong> ${order.estimated_delivery_date || "To be confirmed"}</p>
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><thead><tr><th align="left">Product</th><th>Qty</th><th align="right">Amount</th></tr></thead><tbody>${itemsHtml(order)}</tbody></table>

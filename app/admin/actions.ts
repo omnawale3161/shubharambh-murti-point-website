@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { randomUUID } from "node:crypto";
 import { requireAdmin } from "@/lib/backend/auth";
+import { syncCatalogProductsToDatabase } from "@/lib/backend/catalog-sync";
 import { formDataRecord, parseCategory, parseContactStatus, parseProduct } from "@/lib/backend/validation";
 import { EnvironmentConfigurationError } from "@/lib/env";
+import { orderStatuses } from "@/lib/orders";
+import { products as catalogProducts } from "@/lib/products";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOrderPersistenceConfig, updateOrderStatus, type OrderStatus } from "@/lib/payments";
 
@@ -47,6 +50,22 @@ export async function saveProductAction(_: ActionState, formData: FormData): Pro
   const id = String(formData.get("id") || "");
   const input = parseProduct(formDataRecord(formData));
   if (!input) return fail("Check the product name, slug, prices, and stock count.");
+  const existingProduct = id
+    ? await supabase.from("products").select("slug").eq("id", id).maybeSingle()
+    : null;
+  if (existingProduct?.error) return fail(existingProduct.error.message);
+  const catalogSlugOwner = catalogProducts.find((product) => product.slug === input.slug);
+  if (catalogSlugOwner && catalogSlugOwner.id !== input.sku) {
+    return fail("This slug is already used by the storefront catalog. Choose a unique slug.");
+  }
+  const duplicateSlug = await supabase
+    .from("products")
+    .select("id")
+    .eq("slug", input.slug)
+    .neq("id", id || "00000000-0000-0000-0000-000000000000")
+    .maybeSingle();
+  if (duplicateSlug.data) return fail("This product slug is already used. Choose a unique slug.");
+  if (duplicateSlug.error) return fail(duplicateSlug.error.message);
 
   let result;
   if (id) {
@@ -65,15 +84,41 @@ export async function saveProductAction(_: ActionState, formData: FormData): Pro
   if (result.error) return fail(result.error.message);
 
   revalidatePath("/admin/products");
+  revalidatePath("/");
   revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/cart");
+  revalidatePath("/wishlist");
+  if (existingProduct?.data?.slug && existingProduct.data.slug !== input.slug) {
+    revalidatePath(`/products/${existingProduct.data.slug}`);
+  }
+  revalidatePath(`/products/${input.slug}`);
   return { success: id ? "Product updated." : "Product created." };
 }
 
 export async function deleteProductAction(formData: FormData) {
   const { supabase } = await requireAdmin();
   const id = String(formData.get("id") || "");
-  if (id) await supabase.from("products").delete().eq("id", id);
+  const { data: product } = id ? await supabase.from("products").select("slug").eq("id", id).maybeSingle() : { data: null };
+  if (id) await supabase.from("products").update({ is_active: false }).eq("id", id);
   revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/cart");
+  revalidatePath("/wishlist");
+  if (product?.slug) revalidatePath(`/products/${product.slug}`);
+}
+
+export async function syncCatalogProductsAction() {
+  const { supabase } = await requireAdmin();
+  await syncCatalogProductsToDatabase(supabase, { overwriteExisting: true });
+  revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/cart");
+  revalidatePath("/wishlist");
 }
 
 export async function saveCategoryAction(_: ActionState, formData: FormData): Promise<ActionState> {
@@ -86,6 +131,10 @@ export async function saveCategoryAction(_: ActionState, formData: FormData): Pr
     : await supabase.from("categories").insert(input);
   if (result.error) return fail(result.error.message);
   revalidatePath("/admin/categories");
+  revalidatePath("/admin/products/new");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/search");
   return { success: id ? "Category updated." : "Category created." };
 }
 
@@ -94,6 +143,10 @@ export async function deleteCategoryAction(formData: FormData) {
   const id = String(formData.get("id") || "");
   if (id) await supabase.from("categories").delete().eq("id", id);
   revalidatePath("/admin/categories");
+  revalidatePath("/admin/products/new");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/search");
 }
 
 export async function updateContactStatusAction(formData: FormData) {
@@ -124,12 +177,16 @@ export async function updateOrderStatusAction(formData: FormData) {
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "") as OrderStatus;
   const trackingNumber = String(formData.get("trackingNumber") || "").trim().slice(0, 100);
-  const allowed: OrderStatus[] = ["created", "cod_pending", "payment_authorized", "paid", "confirmed", "packed", "shipped", "delivered", "cancelled", "payment_failed"];
-  if (id && allowed.includes(status)) {
+  if (id && orderStatuses.includes(status)) {
     await updateOrderStatus({ id, status, trackingNumber, credentials: getOrderPersistenceConfig() });
   }
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${id}`);
+  revalidatePath("/account");
+  revalidatePath("/account/orders");
+  revalidatePath(`/account/orders/${id}`);
+  revalidatePath(`/orders/${id}`);
+  revalidatePath("/order-success");
 }
 
 export async function updateStockAction(formData: FormData) {
@@ -144,6 +201,11 @@ export async function updateStockAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/inventory");
   revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/cart");
+  revalidatePath("/wishlist");
 }
 
 export async function bulkUpdateStockAction(formData: FormData) {
@@ -161,6 +223,11 @@ export async function bulkUpdateStockAction(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/inventory");
   revalidatePath("/admin/products");
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/search");
+  revalidatePath("/cart");
+  revalidatePath("/wishlist");
 }
 
 export async function uploadProductImageAction(_: ActionState, formData: FormData): Promise<ActionState> {

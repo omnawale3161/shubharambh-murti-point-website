@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { BadgePercent, Eye, Package, Save } from "lucide-react";
 import { saveProductAction, type ActionState } from "@/app/admin/actions";
 import type { Category, ProductRecord } from "@/lib/supabase/database.types";
@@ -10,9 +10,17 @@ const initialState: ActionState = {};
 const input = "h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10";
 const label = "grid gap-1.5 text-sm font-black text-slate-800";
 
-export function ProductForm({ categories, product }: { categories: Category[]; product?: ProductRecord }) {
+function slugify(value: string) {
+  return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 180);
+}
+
+export function ProductForm({ categories, existingSlugs = [], product }: { categories: Category[]; existingSlugs?: string[]; product?: ProductRecord }) {
   const [state, action, pending] = useActionState(saveProductAction, initialState);
+  const [name, setName] = useState(product?.name || "");
+  const [slug, setSlug] = useState(product?.slug || "");
+  const [slugEdited, setSlugEdited] = useState(Boolean(product?.slug));
   const hasDiscount = Boolean(product?.compare_at_price_paise && product.compare_at_price_paise > product.price_paise);
+  const slugTaken = useMemo(() => Boolean(slug && existingSlugs.includes(slug)), [existingSlugs, slug]);
 
   return (
     <form action={action} className="grid gap-6 xl:grid-cols-[1fr_360px]">
@@ -27,8 +35,15 @@ export function ProductForm({ categories, product }: { categories: Category[]; p
             </div>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label className={label}>Name<input required name="name" defaultValue={product?.name} className={input} /></label>
-            <label className={label}>Slug<input name="slug" defaultValue={product?.slug} className={input} placeholder="Generated from name" /></label>
+            <label className={label}>Name<input required name="name" value={name} onChange={(event) => {
+              const nextName = event.target.value;
+              setName(nextName);
+              if (!slugEdited) setSlug(slugify(nextName));
+            }} className={input} /></label>
+            <label className={label}>Slug<input name="slug" value={slug} onChange={(event) => {
+              setSlugEdited(true);
+              setSlug(slugify(event.target.value));
+            }} className={`${input} ${slugTaken ? "border-red-400 focus:border-red-500 focus:ring-red-500/10" : ""}`} placeholder="Generated from name" />{slugTaken ? <span className="text-xs font-bold text-red-700">This slug is already used by another product.</span> : <span className="text-xs font-semibold text-slate-500">Must be unique. It is used in the product URL.</span>}</label>
             <label className={label}>Category<select name="category_id" defaultValue={product?.category_id || ""} className={input}><option value="">Uncategorized</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
             <label className={label}>SKU<input required name="sku" defaultValue={product?.sku || ""} className={input} placeholder="smp-001" /></label>
             <label className={label}>Material<input name="material" defaultValue={product?.material} className={input} /></label>
@@ -56,7 +71,7 @@ export function ProductForm({ categories, product }: { categories: Category[]; p
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
           <h2 className="text-lg font-black text-slate-950">Media and merchandising</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label className={label}>Image URL<input name="image_url" type="url" defaultValue={product?.image_url || ""} className={input} /></label>
+            <label className={label}>Image URL or asset path<input name="image_url" defaultValue={product?.image_url || ""} className={input} placeholder="/assets/product.jpg or https://..." /></label>
             <label className={label}>Badge<input name="badge" defaultValue={product?.badge || ""} className={input} placeholder="Bestseller, New, Limited" /></label>
             <input type="hidden" name="image_path" value={product?.image_path || ""} />
           </div>
@@ -69,7 +84,7 @@ export function ProductForm({ categories, product }: { categories: Category[]; p
 
         {state.error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm font-bold text-red-800">{state.error}</p> : null}
         {state.success ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">{state.success}</p> : null}
-        <button disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700 disabled:opacity-50 sm:w-fit">
+        <button disabled={pending || slugTaken} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700 disabled:opacity-50 sm:w-fit">
           <Save size={17} />
           {pending ? "Saving..." : "Save product"}
         </button>

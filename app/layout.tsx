@@ -11,6 +11,7 @@ import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { MobileBottomBar } from "@/components/MobileBottomBar";
 import { WhatsAppBubble } from "@/components/WhatsAppBubble";
 import { AppToaster } from "@/components/AppToaster";
+import { getStorefrontProducts } from "@/lib/products/storefront";
 
 const serif = EB_Garamond({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-eb-garamond" });
 const sans = DM_Sans({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-dm-sans" });
@@ -49,7 +50,9 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const storefrontProducts = await getStorefrontProducts();
+
   return (
     <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
@@ -95,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <JsonLd data={[localBusinessSchema, websiteSchema]} />
         <a href="#main-content" className="skip-link">Skip to main content</a>
-        <ShopProvider>
+        <ShopProvider initialProducts={storefrontProducts}>
           <AnnouncementBar />
           <Header />
           <div id="main-content" tabIndex={-1}>

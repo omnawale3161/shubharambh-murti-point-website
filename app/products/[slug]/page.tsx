@@ -8,7 +8,6 @@ import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
 import {
   formatPrice,
   getProductByLegacySlug,
-  getProductBySlug,
   isLegacyUuidSlug,
   productPath,
   products,
@@ -17,6 +16,7 @@ import {
 import { breadcrumbSchema, createProductMetadata, productSchema } from "@/lib/seo";
 import { getInventoryBySlug } from "@/lib/inventory";
 import { getApprovedProductReviews } from "@/lib/reviews";
+import { getStorefrontProductBySlug, getStorefrontProducts } from "@/lib/products/storefront";
 
 const ReviewsPanel = nextDynamic(() => import("@/components/ReviewsPanel").then((module) => module.ReviewsPanel));
 export const dynamic = "force-dynamic";
@@ -27,13 +27,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getStorefrontProductBySlug(slug);
   return product ? createProductMetadata(product) : {};
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getStorefrontProductBySlug(slug);
 
   if (!product) {
     const legacyProduct = getProductByLegacySlug(slug);
@@ -54,7 +54,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const reviewCount = productReviews.length;
   const averageRating = reviewCount ? (productReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount).toFixed(1) : null;
   const gallery = [product.image, ...ugcGallery.filter((image) => image !== product.image)].slice(0, 4);
-  const relatedProducts = products.filter((item) => item.collection === product.collection && item.id !== product.id).slice(0, 5);
+  const storefrontProducts = await getStorefrontProducts();
+  const relatedProducts = storefrontProducts.filter((item) => item.collection === product.collection && item.id !== product.id).slice(0, 5);
 
   return (
     <main className="premium-container py-14 md:py-20">

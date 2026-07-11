@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { products } from "@/lib/products";
+import { getStorefrontProducts } from "@/lib/products/storefront";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const query = new URL(request.url).searchParams.get("q")?.trim().toLowerCase() || "";
   const limit = query ? 8 : 6;
+  const products = await getStorefrontProducts();
   const matches = products
     .filter((product) => {
       if (!query) return true;

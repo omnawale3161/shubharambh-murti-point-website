@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { getProductById } from "@/lib/products";
+import { getStorefrontProductById } from "@/lib/products/storefront";
 import { calculateCheckoutPricing, type CartItem } from "@/lib/shop";
 import { createOrderAccessToken, estimatedDeliveryDate } from "@/lib/orders";
 import { sendOrderNotifications } from "@/lib/orders/email";
@@ -62,10 +62,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid order request." }, { status: 400 });
     }
 
-    const cart = input.items.flatMap<CartItem>((item) => {
-      const product = getProductById(item.productId);
-      return product ? [{ productId: product.id, quantity: item.quantity, options: { giftBox: item.giftBox }, product }] : [];
-    });
+    const cart = (await Promise.all(input.items.map(async (item) => {
+      const product = await getStorefrontProductById(item.productId);
+      return product ? { productId: product.id, quantity: item.quantity, options: { giftBox: item.giftBox }, product } satisfies CartItem : null;
+    }))).filter((item): item is CartItem => Boolean(item));
     if (cart.length !== input.items.length) {
       return NextResponse.json({ error: "Product is unavailable." }, { status: 404 });
     }

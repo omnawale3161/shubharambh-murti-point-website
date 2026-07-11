@@ -16,6 +16,7 @@ type ShopContextValue = {
   cartCount: number;
   wishlistCount: number;
   isHydrated: boolean;
+  getProductById: (productId: string) => Product | undefined;
   addToCart: (productId: string, giftBox?: boolean, quantity?: number) => void;
   removeFromCart: (productId: string, giftBox?: boolean) => void;
   updateQuantity: (productId: string, quantity: number, giftBox?: boolean) => void;
@@ -26,10 +27,18 @@ type ShopContextValue = {
 
 const ShopContext = createContext<ShopContextValue | null>(null);
 
-export function ShopProvider({ children }: { children: React.ReactNode }) {
+export function ShopProvider({ children, initialProducts = [] }: { children: React.ReactNode; initialProducts?: readonly Product[] }) {
   const [cartSelections, setCartSelections] = useState<CartSelection[]>([]);
   const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
+  const productById = useMemo(
+    () => new Map(initialProducts.map((product) => [product.id, product])),
+    [initialProducts]
+  );
+  const resolveProductById = useMemo(
+    () => (productId: string) => productById.get(productId) ?? getProductById(productId),
+    [productById]
+  );
 
   /* eslint-disable react-hooks/set-state-in-effect -- Browser storage must load after hydration to preserve SSR output. */
   useEffect(() => {
@@ -55,23 +64,23 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const cart = useMemo<CartItem[]>(
     () =>
       cartSelections.flatMap((selection) => {
-        const product = getProductById(selection.productId);
+        const product = resolveProductById(selection.productId);
         return product ? [{ ...selection, product }] : [];
       }),
-    [cartSelections]
+    [cartSelections, resolveProductById]
   );
 
   const wishlist = useMemo<Product[]>(
     () => wishlistProductIds.flatMap((productId) => {
-      const product = getProductById(productId);
+      const product = resolveProductById(productId);
       return product ? [product] : [];
     }),
-    [wishlistProductIds]
+    [resolveProductById, wishlistProductIds]
   );
 
   const value = useMemo<ShopContextValue>(() => {
     function addToCart(productId: string, giftBox = false, quantity = 1) {
-      if (!getProductById(productId)) return;
+      if (!resolveProductById(productId)) return;
       const safeQuantity = Math.min(99, Math.max(1, Math.floor(quantity)));
 
       setCartSelections((items) => {
@@ -110,7 +119,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
     }
 
     function toggleWishlist(productId: string) {
-      if (!getProductById(productId)) return;
+      if (!resolveProductById(productId)) return;
 
       setWishlistProductIds((items) =>
         items.includes(productId)
@@ -125,6 +134,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       cartCount: cart.reduce((total, item) => total + item.quantity, 0),
       wishlistCount: wishlist.length,
       isHydrated,
+      getProductById: resolveProductById,
       addToCart,
       removeFromCart,
       updateQuantity,
@@ -132,7 +142,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       toggleWishlist,
       isWishlisted: (productId: string) => wishlistProductIds.includes(productId)
     };
-  }, [cart, isHydrated, wishlist, wishlistProductIds]);
+  }, [cart, isHydrated, resolveProductById, wishlist, wishlistProductIds]);
 
   return <ShopContext.Provider value={value}>{children}</ShopContext.Provider>;
 }

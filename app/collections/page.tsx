@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { CollectionBrowser } from "@/components/CollectionBrowser";
-import { collections, products } from "@/lib/products";
 import { createPageMetadata } from "@/lib/seo";
 import { getInventoryMap } from "@/lib/inventory";
+import { getStorefrontCollections, getStorefrontProducts } from "@/lib/products/storefront";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ collection?: string }> }): Promise<Metadata> {
   const { collection } = await searchParams;
+  const collections = await getStorefrontCollections();
   const validCollection = collections.find((item) => item === collection);
 
   return createPageMetadata({
@@ -21,7 +22,11 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 export default async function CollectionsPage({ searchParams }: { searchParams: Promise<{ collection?: string }> }) {
   const { collection: selected } = await searchParams;
-  const inventory = await getInventoryMap();
+  const [collections, products, inventory] = await Promise.all([
+    getStorefrontCollections(),
+    getStorefrontProducts(),
+    getInventoryMap()
+  ]);
 
   return (
     <main>

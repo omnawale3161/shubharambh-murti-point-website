@@ -2,17 +2,13 @@ import Link from "next/link";
 import { Download, Search, Truck } from "lucide-react";
 import { AdminEmptyState, AdminPageHeader, AdminStatusBadge, AdminTableShell } from "@/components/admin/AdminUI";
 import { requireAdmin } from "@/lib/backend/auth";
-import { formatOrderAddress, orderStatusLabel } from "@/lib/orders";
+import { formatOrderAddress, orderStatusLabel, orderStatuses, paidOrderStatuses, pendingOrderStatuses } from "@/lib/orders";
 import { formatPrice } from "@/lib/products";
 import { getOrderPersistenceConfig, listOrders, type OrderStatus } from "@/lib/payments";
 
-const filterStatuses: OrderStatus[] = ["created", "confirmed", "packed", "shipped", "delivered", "cancelled", "payment_failed"];
-const paid = new Set(["paid", "confirmed", "packed", "shipped", "delivered"]);
-const pending = new Set(["created", "cod_pending", "payment_authorized"]);
-
 function statusTone(status: OrderStatus) {
-  if (paid.has(status)) return "green" as const;
-  if (pending.has(status)) return "amber" as const;
+  if (paidOrderStatuses.has(status)) return "green" as const;
+  if (pendingOrderStatuses.has(status)) return "amber" as const;
   if (status === "cancelled" || status === "payment_failed") return "red" as const;
   return "slate" as const;
 }
@@ -21,7 +17,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   await requireAdmin();
   const { q = "", status = "all" } = await searchParams;
   const allOrders = await listOrders(getOrderPersistenceConfig(), q.trim().slice(0, 100));
-  const orders = allOrders.filter((order) => status === "all" || order.status === status || (status === "paid" && paid.has(order.status)) || (status === "pending" && pending.has(order.status)));
+  const orders = allOrders.filter((order) => status === "all" || order.status === status || (status === "paid" && paidOrderStatuses.has(order.status)) || (status === "pending" && pendingOrderStatuses.has(order.status)));
 
   return (
     <>
@@ -41,7 +37,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           <option value="all">All statuses</option>
           <option value="pending">Pending orders</option>
           <option value="paid">Paid orders</option>
-          {filterStatuses.map((value) => <option key={value} value={value}>{orderStatusLabel(value)}</option>)}
+          {orderStatuses.map((value) => <option key={value} value={value}>{orderStatusLabel(value)}</option>)}
         </select>
         <button className="h-11 rounded-xl bg-amber-600 px-5 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700">Filter</button>
       </form>
@@ -72,7 +68,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                     <p className="mt-1 text-xs text-slate-500">{order.customer_email || "No email"} · {order.customer_phone || "No phone"}</p>
                     <p className="mt-1 line-clamp-1 max-w-xs text-xs text-slate-500">{formatOrderAddress(order.delivery_address)}</p>
                   </td>
-                  <td className="px-5 py-4"><AdminStatusBadge tone={paid.has(order.status) ? "green" : order.status === "payment_failed" ? "red" : "amber"}>{paid.has(order.status) ? "Paid" : order.status === "payment_failed" ? "Failed" : "Pending"}</AdminStatusBadge></td>
+                  <td className="px-5 py-4"><AdminStatusBadge tone={paidOrderStatuses.has(order.status) ? "green" : order.status === "payment_failed" ? "red" : "amber"}>{paidOrderStatuses.has(order.status) ? "Paid" : order.status === "payment_failed" ? "Failed" : "Pending"}</AdminStatusBadge></td>
                   <td className="px-5 py-4"><AdminStatusBadge tone={statusTone(order.status)}>{orderStatusLabel(order.status)}</AdminStatusBadge></td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2 text-sm font-bold text-slate-700">

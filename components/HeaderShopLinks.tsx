@@ -13,13 +13,13 @@ export function HeaderShopLinks() {
   return (
     <div className="hidden items-center gap-1 md:flex">
       <GlobalSearch />
-      <Link href="/wishlist" aria-label={`Wishlist with ${visibleWishlistCount} items`} className="btn-icon btn-icon-circle relative">
+      <Link href="/wishlist" aria-label={`Wishlist with ${visibleWishlistCount} items`} className="btn-icon btn-icon-circle group relative">
         <Heart size={19} />
-        {visibleWishlistCount > 0 ? <span className="absolute right-0 top-0 rounded-full bg-secondary-container px-1 text-[10px] font-bold text-primary">{visibleWishlistCount}</span> : null}
+        {visibleWishlistCount > 0 ? <span className="absolute right-0 top-0 rounded-full bg-secondary-container px-1 text-[10px] font-bold text-primary transition group-hover:text-white">{visibleWishlistCount}</span> : null}
       </Link>
-      <Link href="/cart" aria-label={`Cart with ${visibleCartCount} items`} className="btn-icon btn-icon-circle relative">
+      <Link href="/cart" aria-label={`Cart with ${visibleCartCount} items`} className="btn-icon btn-icon-circle group relative">
         <ShoppingCart size={19} />
-        {visibleCartCount > 0 ? <span className="absolute right-0 top-0 rounded-full bg-secondary-container px-1 text-[10px] font-bold text-primary">{visibleCartCount}</span> : null}
+        {visibleCartCount > 0 ? <span className="absolute right-0 top-0 rounded-full bg-secondary-container px-1 text-[10px] font-bold text-primary transition group-hover:text-white">{visibleCartCount}</span> : null}
       </Link>
     </div>
   );

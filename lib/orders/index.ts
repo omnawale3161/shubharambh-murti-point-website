@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import type { OrderAddress, OrderItem, OrderStatus, PersistedOrder } from "@/lib/payments";
+export { orderStatusLabel, orderStatuses, paidOrderStatuses, pendingOrderStatuses } from "./status";
 
 export type OrderTimelineStep = {
   key: "confirmed" | "packed" | "shipped" | "out_for_delivery" | "delivered";
@@ -16,6 +17,7 @@ const statusRank: Record<OrderStatus, number> = {
   confirmed: 0,
   packed: 1,
   shipped: 2,
+  out_for_delivery: 3,
   delivered: 4,
   cancelled: -1,
   payment_failed: -1
@@ -50,10 +52,6 @@ export function orderTimeline(status: OrderStatus): OrderTimelineStep[] {
     complete: rank >= index,
     current: rank === index
   }));
-}
-
-export function orderStatusLabel(status: OrderStatus) {
-  return status === "cod_pending" ? "Created · Cash on Delivery" : status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export function formatOrderAddress(address?: OrderAddress) {

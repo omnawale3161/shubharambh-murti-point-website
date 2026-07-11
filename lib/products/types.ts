@@ -1,12 +1,4 @@
-export type ProductCollection =
-  | "Ganpati Murti"
-  | "Shivaji Maharaj Murti"
-  | "Shiv Murti"
-  | "Krishna Murti"
-  | "Swami Smarath Murti"
-  | "Decorative Spiritual Idols"
-  | "Hanuman Murti"
-  | "Shree Ram Murti";
+export type ProductCollection = string;
 
 export type Product = {
   id: string;
