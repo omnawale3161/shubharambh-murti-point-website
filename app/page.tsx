@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { instagramUrl, ugcGallery } from "@/lib/products";
 import { ProductCard } from "@/components/ProductCard";
+import { instagramUrl, ugcGallery } from "@/lib/products";
 import { createPageMetadata } from "@/lib/seo";
-import { getStorefrontProducts } from "@/lib/products/storefront";
+import { getInventoryMap } from "@/lib/inventory";
+import { getStorefrontCategoryTiles } from "@/lib/products/storefront";
 
 export const metadata = createPageMetadata({
   title: "Premium Handcrafted Murtis & Spiritual Decor",
@@ -25,7 +26,10 @@ const stats = [
 ];
 
 export default async function HomePage() {
-  const featuredProducts = (await getStorefrontProducts()).slice(0, 3);
+  const [categoryProducts, inventory] = await Promise.all([
+    getStorefrontCategoryTiles(),
+    getInventoryMap()
+  ]);
 
   return (
     <main>
@@ -64,20 +68,39 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-surface-container-low py-16">
+      <section className="bg-surface-container-low py-12 md:py-14">
         <div className="premium-container">
-          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="section-kicker">Curated collection</p>
-              <h2 className="mt-3 text-4xl text-primary md:text-5xl">Best Sellers</h2>
+              <h2 className="mt-3 text-4xl text-primary md:text-5xl">Shop by Category</h2>
             </div>
             <Link href="/collections" className="btn btn-secondary">
               View All Products
             </Link>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {featuredProducts.map((product) => <ProductCard key={product.slug} product={product} showSecondaryActions={false} />)}
-          </div>
+          {categoryProducts.length ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              {categoryProducts.map(({ category, product }) => (
+                <ProductCard
+                  key={category.slug}
+                  product={{
+                    ...product,
+                    image: category.image_url || product.image,
+                    collection: category.name,
+                    description: category.description || product.description
+                  }}
+                  inventory={inventory[product.slug]}
+                  showSecondaryActions={false}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-outline-variant bg-white p-6 text-center shadow-card">
+              <p className="font-black text-primary">New collections are being prepared.</p>
+              <p className="mt-2 text-sm text-on-surface-variant">Please check back soon for fresh devotional pieces.</p>
+            </div>
+          )}
         </div>
       </section>
 

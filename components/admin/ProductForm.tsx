@@ -50,17 +50,17 @@ export function ProductForm({ categories, existingSlugs = [], product }: { categ
               const nextName = event.target.value;
               setName(nextName);
               if (!slugEdited) setSlug(uniqueSlug(nextName, existingSlugs));
-            }} className={input} /></label>
+            }} className={input} placeholder="e.g. Ganapati Bappa" /></label>
             <label className={label}>Slug<input name="slug" value={slug} onChange={(event) => {
               setSlugEdited(true);
               setSlug(slugify(event.target.value));
-            }} className={`${input} ${slugTaken ? "border-red-400 focus:border-red-500 focus:ring-red-500/10" : ""}`} placeholder="Generated from name" />{slugTaken ? <span className="text-xs font-bold text-red-700">This slug is already used by another product.</span> : <span className="text-xs font-semibold text-slate-500">Must be unique. It is used in the product URL.</span>}</label>
-            <label className={label}>Category<select name="category_id" defaultValue={product?.category_id || ""} className={input}><option value="">Uncategorized</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
-            <label className={label}>SKU<input required name="sku" defaultValue={product?.sku || ""} className={input} placeholder="smp-001" /></label>
-            <label className={label}>Material<input name="material" defaultValue={product?.material} className={input} /></label>
-            <label className={label}>Size<input name="size" defaultValue={product?.size} className={input} /></label>
+            }} className={`${input} ${slugTaken ? "border-red-400 focus:border-red-500 focus:ring-red-500/10" : ""}`} placeholder="Auto-generated, e.g. ganapati-bappa" />{slugTaken ? <span className="text-xs font-bold text-red-700">This slug is already used by another product.</span> : <span className="text-xs font-semibold text-slate-500">Must be unique. It is used in the product URL.</span>}</label>
+            <label className={label}>Category<select required name="category_id" defaultValue={product?.category_id || ""} className={input}><option value="" disabled>Select category</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
+            <label className={label}>SKU<input required name="sku" defaultValue={product?.sku || ""} className={input} placeholder="e.g. smp-001 or ganapati-001" /></label>
+            <label className={label}>Material<input name="material" defaultValue={product?.material} className={input} placeholder="e.g. Marble dust finish" /></label>
+            <label className={label}>Size<input name="size" defaultValue={product?.size} className={input} placeholder="e.g. 5 inch" /></label>
           </div>
-          <label className={`${label} mt-4`}>Description<textarea name="description" defaultValue={product?.description} className={`${input} h-auto min-h-32 py-3 leading-6`} /></label>
+          <label className={`${label} mt-4`}>Description<textarea name="description" defaultValue={product?.description} className={`${input} h-auto min-h-32 py-3 leading-6`} placeholder="Write the product details customers should see on the product page." /></label>
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
@@ -72,18 +72,18 @@ export function ProductForm({ categories, existingSlugs = [], product }: { categ
             </div>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label className={label}>Price (paise)<input required name="price_paise" type="number" min="0" defaultValue={product?.price_paise ?? 0} className={input} /></label>
-            <label className={label}>Compare price (paise)<input name="compare_at_price_paise" type="number" min="0" defaultValue={product?.compare_at_price_paise || ""} className={input} /></label>
-            <label className={label}>Current stock<input required name="stock" type="number" min="0" defaultValue={product?.stock ?? product?.stock_count ?? 0} className={input} /></label>
-            <label className={label}>Low stock threshold<input required name="low_stock_threshold" type="number" min="0" defaultValue={product?.low_stock_threshold ?? 5} className={input} /></label>
+            <label className={label}>Price (₹)<input required name="price_rupees" type="number" min="0" step="0.01" defaultValue={product ? product.price_paise / 100 : ""} className={input} placeholder="e.g. 999" /><span className="text-xs font-semibold text-slate-500">Enter rupees. The system stores it internally as paise.</span></label>
+            <label className={label}>Compare price (₹)<input name="compare_at_price_rupees" type="number" min="0" step="0.01" defaultValue={product?.compare_at_price_paise ? product.compare_at_price_paise / 100 : ""} className={input} placeholder="Optional, e.g. 1100" /></label>
+            <label className={label}>Current stock<input required name="stock" type="number" min="0" defaultValue={product ? product.stock ?? product.stock_count ?? 0 : ""} className={input} placeholder="e.g. 10" /><span className="text-xs font-semibold text-slate-500">Use 0 only when the product should be out of stock.</span></label>
+            <label className={label}>Low stock threshold<input required name="low_stock_threshold" type="number" min="0" defaultValue={product?.low_stock_threshold ?? 5} className={input} placeholder="e.g. 5" /></label>
           </div>
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
           <h2 className="text-lg font-black text-slate-950">Media and merchandising</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label className={label}>Image URL or asset path<input name="image_url" defaultValue={product?.image_url || ""} className={input} placeholder="/assets/product.jpg or https://..." /></label>
-            <label className={label}>Badge<input name="badge" defaultValue={product?.badge || ""} className={input} placeholder="Bestseller, New, Limited" /></label>
+            <label className={label}>Image URL or asset path<input name="image_url" defaultValue={product?.image_url || ""} className={input} placeholder="https://.../ganapati.jpg or /assets/ganapati.jpg" /></label>
+            <label className={label}>Badge<input name="badge" defaultValue={product?.badge || ""} className={input} placeholder="e.g. Bestseller, New, Limited" /></label>
             <input type="hidden" name="image_path" value={product?.image_path || ""} />
           </div>
           <div className="mt-5 flex flex-wrap gap-4">

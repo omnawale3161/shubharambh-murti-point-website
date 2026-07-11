@@ -3,8 +3,19 @@ import { products } from "@/lib/products";
 import {
   databaseStorefrontProducts,
   mergeStorefrontProducts,
+  type StorefrontCategoryRow,
   type StorefrontProductRow
 } from "@/lib/products/storefront-merge";
+
+const categoryRow: StorefrontCategoryRow = {
+  id: "category-ganapati",
+  name: "Ganapati Murti",
+  slug: "ganapati-murti",
+  description: "",
+  image_url: null,
+  is_active: true,
+  sort_order: 1
+};
 
 function productRow(row: Partial<StorefrontProductRow> = {}): StorefrontProductRow {
   return {
@@ -21,7 +32,7 @@ function productRow(row: Partial<StorefrontProductRow> = {}): StorefrontProductR
     size: row.size || "6 inch",
     badge: row.badge || "New",
     is_active: row.is_active ?? true,
-    categories: row.categories ?? { name: "Ganapati Murti", slug: "ganapati-murti" }
+    categories: row.categories ?? categoryRow
   };
 }
 

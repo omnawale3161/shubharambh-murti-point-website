@@ -1,23 +1,19 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { products as catalogProducts } from "@/lib/products";
-import { defaultProductCollections } from "@/lib/products/categories";
+import { primaryProductCategorySeeds } from "@/lib/products/categories";
 import type { Database } from "@/lib/supabase/database.types";
-import { slugify } from "./validation";
 
 type AdminSupabaseClient = SupabaseClient<Database>;
 type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
 type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
 
-function uniqueCollections() {
-  return [...new Set([...defaultProductCollections, ...catalogProducts.map((product) => product.collection)])];
-}
-
 async function ensureCatalogCategories(supabase: AdminSupabaseClient) {
-  const seeds = uniqueCollections().map((name, index) => ({
-    name,
-    slug: slugify(name),
+  const seeds = primaryProductCategorySeeds.map((category, index) => ({
+    name: category.name,
+    slug: category.slug,
     description: "",
+    image_url: null,
     sort_order: index,
     is_active: true
   }));

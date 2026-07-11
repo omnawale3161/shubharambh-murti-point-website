@@ -18,9 +18,9 @@ export type Database = {
         { display_name?: string; role?: AppRole; updated_at?: string }
       >;
       categories: Table<
-        { id: string; name: string; slug: string; description: string; is_active: boolean; sort_order: number; created_at: string; updated_at: string },
-        { id?: string; name: string; slug: string; description?: string; is_active?: boolean; sort_order?: number; created_at?: string; updated_at?: string },
-        { name?: string; slug?: string; description?: string; is_active?: boolean; sort_order?: number; updated_at?: string }
+        { id: string; name: string; slug: string; description: string; image_url: string | null; is_active: boolean; sort_order: number; created_at: string; updated_at: string },
+        { id?: string; name: string; slug: string; description?: string; image_url?: string | null; is_active?: boolean; sort_order?: number; created_at?: string; updated_at?: string },
+        { name?: string; slug?: string; description?: string; image_url?: string | null; is_active?: boolean; sort_order?: number; updated_at?: string }
       >;
       products: Table<
         { id: string; category_id: string | null; name: string; slug: string; description: string; price_paise: number; compare_at_price_paise: number | null; stock_count: number; stock: number; reserved_stock: number; low_stock_threshold: number; sku: string | null; image_url: string | null; image_path: string | null; material: string; size: string; badge: string | null; is_active: boolean; is_featured: boolean; created_at: string; updated_at: string },

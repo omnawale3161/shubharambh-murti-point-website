@@ -11,7 +11,6 @@ import {
   isLegacyUuidSlug,
   productPath,
   products,
-  ugcGallery
 } from "@/lib/products";
 import { breadcrumbSchema, createProductMetadata, productSchema } from "@/lib/seo";
 import { getInventoryBySlug } from "@/lib/inventory";
@@ -53,7 +52,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const productReviews = await getApprovedProductReviews(product.id);
   const reviewCount = productReviews.length;
   const averageRating = reviewCount ? (productReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount).toFixed(1) : null;
-  const gallery = [product.image, ...ugcGallery.filter((image) => image !== product.image)].slice(0, 4);
+  const gallery = [product.image];
   const storefrontProducts = await getStorefrontProducts();
   const relatedProducts = storefrontProducts.filter((item) => item.collection === product.collection && item.id !== product.id).slice(0, 5);
 
@@ -73,13 +72,15 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="product-image-frame relative h-[420px] rounded-3xl border border-outline-variant bg-white shadow-card sm:h-[500px] md:h-[680px]">
             <Image src={product.image} alt={product.name} fill priority fetchPriority="high" quality={78} sizes="(max-width:768px) 100vw, 50vw" className="object-contain p-3" />
           </div>
-          <div className="mt-4 flex snap-x gap-3 overflow-x-auto pb-2" aria-label="Product gallery">
-            {gallery.map((image, index) => (
-              <div key={image} className="relative h-20 w-20 shrink-0 snap-start overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-card md:h-24 md:w-24">
-                <Image src={image} alt={`${product.name} gallery image ${index + 1}`} fill sizes="96px" quality={65} className="object-contain p-2" />
-              </div>
-            ))}
-          </div>
+          {gallery.length > 1 ? (
+            <div className="mt-4 flex snap-x gap-3 overflow-x-auto pb-2" aria-label="Product gallery">
+              {gallery.map((image, index) => (
+                <div key={image} className="relative h-20 w-20 shrink-0 snap-start overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-card md:h-24 md:w-24">
+                  <Image src={image} alt={`${product.name} gallery image ${index + 1}`} fill sizes="96px" quality={65} className="object-contain p-2" />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
         <section className="self-center">
           <p className="section-kicker">{product.collection}</p>
@@ -117,16 +118,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       </section>
 
       <section className="py-16">
-        <p className="section-kicker">Reviews + UGC</p>
+        <p className="section-kicker">Reviews</p>
         <h2 className="mt-3 text-4xl font-black">Loved in homes across Maharashtra</h2>
         <ReviewsPanel initialReviews={productReviews} productId={product.id} />
-        <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {ugcGallery.map((image, index) => (
-            <div key={image} className="relative aspect-square overflow-hidden rounded-2xl border border-gold/20 bg-beige">
-              <Image src={image} alt={`Customer shared murti photo ${index + 1}`} fill sizes="(max-width: 767px) 48vw, 280px" quality={65} className="object-cover" />
-            </div>
-          ))}
-        </div>
       </section>
 
       {relatedProducts.length ? (

@@ -3,6 +3,7 @@ import { products } from "@/lib/products";
 import { readDecor, readFrames, readIdols } from "@/lib/excel";
 import { requireAdminApi } from "@/lib/backend/auth";
 import { parseProduct } from "@/lib/backend/validation";
+import { isPrimaryProductCategory } from "@/lib/products/categories";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const revalidate = 3600;
@@ -46,6 +47,16 @@ export async function POST(request: Request) {
   if (!admin) return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   const input = parseProduct(await request.json() as Record<string, unknown>);
   if (!input) return NextResponse.json({ error: "Invalid product data." }, { status: 400 });
+  if (!input.category_id) return NextResponse.json({ error: "Choose one of the primary product categories." }, { status: 400 });
+  const selectedCategory = await admin.supabase
+    .from("categories")
+    .select("name,slug")
+    .eq("id", input.category_id)
+    .maybeSingle();
+  if (selectedCategory.error) return NextResponse.json({ error: selectedCategory.error.message }, { status: 400 });
+  if (!selectedCategory.data || !isPrimaryProductCategory(selectedCategory.data.name, selectedCategory.data.slug)) {
+    return NextResponse.json({ error: "Choose one of the primary product categories." }, { status: 400 });
+  }
   const { data, error } = await admin.supabase.from("products").insert(input).select().single();
   return error
     ? NextResponse.json({ error: error.message }, { status: 400 })

@@ -16,10 +16,11 @@ export function CategoryForm({ category }: { category?: Category }) {
         <span className="grid size-10 place-items-center rounded-xl bg-amber-50 text-amber-700"><FolderTree size={19} /></span>
         <div><h2 className="font-black text-slate-950">{category ? "Edit category" : "Create category"}</h2><p className="text-sm text-slate-500">Organize products for storefront browsing.</p></div>
       </div>
-      <input required name="name" defaultValue={category?.name} placeholder="Category name" className={input} />
-      <input name="slug" defaultValue={category?.slug} placeholder="Slug generated from name" className={input} />
-      <textarea name="description" defaultValue={category?.description} placeholder="Description" className={`${input} h-auto min-h-24 py-3`} />
-      <input required name="sort_order" type="number" min="0" defaultValue={category?.sort_order ?? 0} className={input} />
+      <input required name="name" defaultValue={category?.name} placeholder="e.g. Ganapati Murti" className={input} />
+      <input name="slug" defaultValue={category?.slug} placeholder="Auto-generated, e.g. ganapati-murti" className={input} />
+      <textarea name="description" defaultValue={category?.description} placeholder="Short category text shown when this category appears on the home page." className={`${input} h-auto min-h-24 py-3`} />
+      <input name="image_url" defaultValue={category?.image_url || ""} placeholder="Optional category image URL. If empty, the first active product image is used." className={input} />
+      <input required name="sort_order" type="number" min="0" defaultValue={category?.sort_order ?? 0} placeholder="Sort order, e.g. 0, 1, 2" className={input} />
       <label className="flex items-center gap-3 text-sm font-black text-slate-800"><input name="is_active" type="checkbox" defaultChecked={category?.is_active ?? true} className="size-5" />Active</label>
       {state.error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm font-bold text-red-800">{state.error}</p> : null}
       {state.success ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">{state.success}</p> : null}

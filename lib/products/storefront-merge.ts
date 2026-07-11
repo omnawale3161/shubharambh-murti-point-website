@@ -1,4 +1,5 @@
 import type { Product, ProductCollection } from "./types";
+import { isPrimaryProductCategoryName } from "./categories";
 
 export type StorefrontProductRow = {
   id: string;
@@ -14,7 +15,17 @@ export type StorefrontProductRow = {
   size: string;
   badge: string | null;
   is_active: boolean;
-  categories: { name: string; slug: string } | null;
+  categories: StorefrontCategoryRow | null;
+};
+
+export type StorefrontCategoryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  image_url: string | null;
+  is_active: boolean;
+  sort_order: number;
 };
 
 const fallbackImage = "/assets/logo.png";
@@ -39,7 +50,7 @@ function fromDatabaseProduct(row: StorefrontProductRow, base?: Product): Product
 
 export function databaseStorefrontProducts(databaseProducts: readonly StorefrontProductRow[]) {
   return databaseProducts
-    .filter((row) => row.is_active)
+    .filter((row) => row.is_active && row.categories?.is_active && isPrimaryProductCategoryName(row.categories.name))
     .map((row) => fromDatabaseProduct(row));
 }
 

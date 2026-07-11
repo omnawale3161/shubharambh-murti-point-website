@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { AlertTriangle, DatabaseZap, Eye, PackageCheck, PackageX, Pencil, Plus, Trash2, UploadCloud } from "lucide-react";
-import { deleteProductAction, syncCatalogProductsAction } from "@/app/admin/actions";
+import { AlertTriangle, Eye, PackageCheck, PackageX, Pencil, Plus, Trash2, UploadCloud } from "lucide-react";
+import { deleteProductAction } from "@/app/admin/actions";
 import { AdminCard, AdminEmptyState, AdminPageHeader, AdminStatusBadge, AdminTableShell } from "@/components/admin/AdminUI";
 import { ImageUploadForm } from "@/components/admin/ImageUploadForm";
 import { requireAdmin } from "@/lib/backend/auth";
@@ -31,9 +31,6 @@ export default async function AdminProductsPage() {
         description="Manage product previews, pricing, stock, badges, featured status, and active availability."
         action={
           <div className="flex flex-wrap gap-2">
-            <form action={syncCatalogProductsAction}>
-              <button className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100"><DatabaseZap size={17} />Import catalog</button>
-            </form>
             <Link href="/admin/inventory" className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:border-amber-300 hover:text-amber-700">Manage inventory</Link>
             <Link href="/admin/products/new" className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-amber-600/20 transition hover:bg-amber-700"><Plus size={17} />Add product</Link>
           </div>

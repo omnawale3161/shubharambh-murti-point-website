@@ -19,6 +19,13 @@ function integer(value: unknown, minimum = 0) {
   return Number.isInteger(parsed) && parsed >= minimum ? parsed : null;
 }
 
+function paise(value: unknown, { rupees = false } = {}) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return null;
+  const amount = rupees ? Math.round(parsed * 100) : parsed;
+  return Number.isInteger(amount) ? amount : null;
+}
+
 function boolean(value: unknown) {
   return value === true || value === "true" || value === "on";
 }
@@ -31,10 +38,14 @@ export function parseProduct(value: Record<string, unknown>): ProductMutation | 
   const name = text(value.name, 160);
   const slug = slugify(text(value.slug, 180) || name);
   const sku = text(value.sku, 100).toLowerCase();
-  const pricePaise = integer(value.price_paise);
+  const pricePaise = "price_rupees" in value
+    ? paise(value.price_rupees, { rupees: true })
+    : integer(value.price_paise);
   const stock = integer(value.stock ?? value.stock_count);
   const lowStockThreshold = integer(value.low_stock_threshold ?? 5);
-  const compareAt = value.compare_at_price_paise ? integer(value.compare_at_price_paise) : null;
+  const compareAt = "compare_at_price_rupees" in value
+    ? value.compare_at_price_rupees ? paise(value.compare_at_price_rupees, { rupees: true }) : null
+    : value.compare_at_price_paise ? integer(value.compare_at_price_paise) : null;
   if (name.length < 2 || !slug || !/^[a-z0-9][a-z0-9-]{2,99}$/.test(sku) || pricePaise === null || stock === null || lowStockThreshold === null || (compareAt !== null && compareAt < pricePaise)) return null;
 
   return {
@@ -63,7 +74,14 @@ export function parseCategory(value: Record<string, unknown>): CategoryMutation 
   const slug = slugify(text(value.slug, 120) || name);
   const sortOrder = integer(value.sort_order);
   return name.length >= 2 && slug && sortOrder !== null
-    ? { name, slug, description: text(value.description, 1000), sort_order: sortOrder, is_active: boolean(value.is_active) }
+    ? {
+        name,
+        slug,
+        description: text(value.description, 1000),
+        image_url: nullableText(value.image_url, 1000),
+        sort_order: sortOrder,
+        is_active: boolean(value.is_active)
+      }
     : null;
 }
 

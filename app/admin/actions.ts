@@ -8,7 +8,7 @@ import { syncCatalogProductsToDatabase } from "@/lib/backend/catalog-sync";
 import { formDataRecord, parseCategory, parseContactStatus, parseProduct } from "@/lib/backend/validation";
 import { EnvironmentConfigurationError } from "@/lib/env";
 import { orderStatuses } from "@/lib/orders";
-import { products as catalogProducts } from "@/lib/products";
+import { isPrimaryProductCategory } from "@/lib/products/categories";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOrderPersistenceConfig, updateOrderStatus, type OrderStatus } from "@/lib/payments";
 
@@ -50,14 +50,20 @@ export async function saveProductAction(_: ActionState, formData: FormData): Pro
   const id = String(formData.get("id") || "");
   const input = parseProduct(formDataRecord(formData));
   if (!input) return fail("Check the product name, slug, prices, and stock count.");
+  if (!input.category_id) return fail("Choose one of the primary product categories.");
+  const selectedCategory = await supabase
+    .from("categories")
+    .select("name,slug")
+    .eq("id", input.category_id)
+    .maybeSingle();
+  if (selectedCategory.error) return fail(selectedCategory.error.message);
+  if (!selectedCategory.data || !isPrimaryProductCategory(selectedCategory.data.name, selectedCategory.data.slug)) {
+    return fail("Choose one of the primary product categories.");
+  }
   const existingProduct = id
     ? await supabase.from("products").select("slug").eq("id", id).maybeSingle()
     : null;
   if (existingProduct?.error) return fail(existingProduct.error.message);
-  const catalogSlugOwner = catalogProducts.find((product) => product.slug === input.slug);
-  if (catalogSlugOwner && catalogSlugOwner.id !== input.sku) {
-    return fail("This slug is already used by the storefront catalog. Choose a unique slug.");
-  }
   const duplicateSlug = await supabase
     .from("products")
     .select("id")
@@ -126,6 +132,9 @@ export async function saveCategoryAction(_: ActionState, formData: FormData): Pr
   const id = String(formData.get("id") || "");
   const input = parseCategory(formDataRecord(formData));
   if (!input) return fail("Check the category name, slug, and sort order.");
+  if (!isPrimaryProductCategory(input.name, input.slug)) {
+    return fail("Only the primary product categories can be saved.");
+  }
   const result = id
     ? await supabase.from("categories").update(input).eq("id", id)
     : await supabase.from("categories").insert(input);
@@ -141,7 +150,7 @@ export async function saveCategoryAction(_: ActionState, formData: FormData): Pr
 export async function deleteCategoryAction(formData: FormData) {
   const { supabase } = await requireAdmin();
   const id = String(formData.get("id") || "");
-  if (id) await supabase.from("categories").delete().eq("id", id);
+  if (id) await supabase.from("categories").update({ is_active: false }).eq("id", id);
   revalidatePath("/admin/categories");
   revalidatePath("/admin/products/new");
   revalidatePath("/");
