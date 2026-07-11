@@ -11,6 +11,7 @@ export type StorefrontProductRow = {
   stock_count: number;
   sku: string | null;
   image_url: string | null;
+  image_urls: string[];
   material: string;
   size: string;
   badge: string | null;
@@ -30,7 +31,17 @@ export type StorefrontCategoryRow = {
 
 const fallbackImage = "/assets/logo.png";
 
+function imageList(primary: string | null | undefined, additional: readonly string[] | null | undefined, base?: Product) {
+  const unique = new Set<string>();
+  [primary, ...(additional || []), base?.image, ...(base?.images || [])].forEach((image) => {
+    const clean = typeof image === "string" ? image.trim() : "";
+    if (clean) unique.add(clean);
+  });
+  return unique.size ? [...unique] : [fallbackImage];
+}
+
 function fromDatabaseProduct(row: StorefrontProductRow, base?: Product): Product {
+  const images = imageList(row.image_url, row.image_urls, base);
   return {
     id: base?.id || row.sku || row.id,
     slug: row.slug || base?.slug || row.id,
@@ -39,7 +50,8 @@ function fromDatabaseProduct(row: StorefrontProductRow, base?: Product): Product
     price: row.price_paise / 100,
     size: row.size || base?.size || "Size not specified",
     material: row.material || base?.material || "Material not specified",
-    image: row.image_url || base?.image || fallbackImage,
+    image: images[0] || fallbackImage,
+    images,
     badge: row.badge || base?.badge || "New",
     description:
       row.description ||

@@ -23,7 +23,7 @@ async function databaseProductRows() {
     const [productsResult, categoriesResult] = await Promise.all([
       supabase
         .from("products")
-        .select("id,category_id,name,slug,description,price_paise,stock_count,sku,image_url,material,size,badge,is_active")
+        .select("id,category_id,name,slug,description,price_paise,stock_count,sku,image_url,image_urls,material,size,badge,is_active")
         .order("created_at", { ascending: false }),
       supabase
         .from("categories")

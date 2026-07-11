@@ -85,7 +85,7 @@ export function CollectionBrowser({
       </div>
 
       <p className="mt-8 text-sm font-bold text-ink/62" aria-live="polite" aria-atomic="true">{visibleProducts.length} products found</p>
-      <div id="product-results" className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+      <div id="product-results" className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-6">
         {visibleProducts.map((product) => <ProductCard key={product.slug} product={product} inventory={inventory[product.slug]} />)}
       </div>
       {visibleProducts.length === 0 ? (

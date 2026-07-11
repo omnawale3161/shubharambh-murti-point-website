@@ -81,8 +81,11 @@ export function ProductForm({ categories, existingSlugs = [], product }: { categ
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
           <h2 className="text-lg font-black text-slate-950">Media and merchandising</h2>
+          <div className="mt-5 grid gap-4">
+            <label className={label}>Primary image URL or asset path<input name="image_url" defaultValue={product?.image_url || ""} className={input} placeholder="https://.../ganapati-front.jpg or /assets/ganapati-front.jpg" /><span className="text-xs font-semibold text-slate-500">This image is used on cards, search, cart, and as the first product detail image.</span></label>
+            <label className={label}>Gallery image URLs<textarea name="image_urls" defaultValue={(product?.image_urls || []).join("\n")} className={`${input} h-auto min-h-28 py-3 leading-6`} placeholder={"Optional extra images, one per line:\nhttps://.../ganapati-side.jpg\nhttps://.../ganapati-back.jpg"} /><span className="text-xs font-semibold text-slate-500">Paste extra product image URLs here. Do not add unrelated customer or catalog images.</span></label>
+          </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <label className={label}>Image URL or asset path<input name="image_url" defaultValue={product?.image_url || ""} className={input} placeholder="https://.../ganapati.jpg or /assets/ganapati.jpg" /></label>
             <label className={label}>Badge<input name="badge" defaultValue={product?.badge || ""} className={input} placeholder="e.g. Bestseller, New, Limited" /></label>
             <input type="hidden" name="image_path" value={product?.image_path || ""} />
           </div>
@@ -111,6 +114,7 @@ export function ProductForm({ categories, existingSlugs = [], product }: { categ
         </div>
         <p className="mt-5 text-xl font-black text-slate-950">{product?.name || "New product"}</p>
         <p className="mt-2 text-sm leading-6 text-slate-500">{product?.description || "Add a short, premium product description for the listing."}</p>
+        {product?.image_urls?.length ? <p className="mt-3 text-xs font-bold text-slate-500">{product.image_urls.length} gallery image{product.image_urls.length === 1 ? "" : "s"} added</p> : null}
         <div className="mt-4 flex flex-wrap gap-2">
           {hasDiscount ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Discount active</span> : null}
           {product?.is_featured ? <span className="rounded-full bg-violet-50 px-3 py-1 text-xs font-black text-violet-700">Featured</span> : null}

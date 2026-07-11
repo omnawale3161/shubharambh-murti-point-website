@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
+import { Images, Star } from "lucide-react";
 import { ProductQuickActions } from "@/components/ProductQuickActions";
 import { formatPrice, Product, productRating } from "@/lib/products";
 import type { InventoryAvailability } from "@/lib/inventory";
@@ -15,6 +15,7 @@ export function ProductCard({
   showSecondaryActions?: boolean;
 }) {
   const rating = productRating(product);
+  const extraImageCount = Math.max(0, (product.images?.length || 1) - 1);
 
   return (
     <article className="premium-card group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl p-2 sm:rounded-3xl">
@@ -27,7 +28,7 @@ export function ProductCard({
               fill
               quality={72}
               className="object-contain p-3 transition duration-700 group-hover:scale-105 sm:p-4"
-              sizes="(max-width: 639px) calc(100vw - 24px), (max-width: 1199px) 50vw, (max-width: 1439px) 25vw, 20vw"
+              sizes="(max-width: 639px) calc(100vw - 24px), (max-width: 1199px) 50vw, 25vw"
             />
             <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-white sm:left-3 sm:top-3 sm:px-3 sm:text-[10px]">
               {product.badge}
@@ -39,6 +40,12 @@ export function ProductCard({
             ) : inventory?.isLowStock ? (
               <span className="absolute right-2 top-2 rounded-full bg-amber-600 px-2 py-1 text-[9px] font-bold uppercase text-white sm:right-3 sm:top-3 sm:px-3 sm:text-[10px]">
                 Only {inventory.availableStock} left
+              </span>
+            ) : null}
+            {extraImageCount > 0 ? (
+              <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-outline-variant bg-white/95 px-2.5 py-1 text-[10px] font-black text-primary shadow-card sm:bottom-3 sm:right-3 sm:text-xs" aria-label={`${extraImageCount} more product images`}>
+                <Images size={13} />
+                +{extraImageCount}
               </span>
             ) : null}
           </div>

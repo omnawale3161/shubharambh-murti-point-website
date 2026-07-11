@@ -241,16 +241,24 @@ export async function bulkUpdateStockAction(formData: FormData) {
 
 export async function uploadProductImageAction(_: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return fail("Choose an image to upload.");
-  if (file.size > 5 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) {
-    return fail("Use a JPG, PNG, WebP, or AVIF image up to 5 MB.");
-  }
+  const files = formData.getAll("files").filter((file): file is File => file instanceof File && file.size > 0);
+  const legacyFile = formData.get("file");
+  if (!files.length && legacyFile instanceof File && legacyFile.size > 0) files.push(legacyFile);
+  if (!files.length) return fail("Choose at least one image to upload.");
+  if (files.length > 12) return fail("Upload up to 12 images at a time.");
 
-  const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-  const path = `${new Date().getUTCFullYear()}/${randomUUID()}.${extension}`;
-  const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type, upsert: false });
-  if (error) return fail(error.message);
-  const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-  return { success: `${data.publicUrl}|${path}` };
+  const uploaded: string[] = [];
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024 || !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) {
+      return fail("Use JPG, PNG, WebP, or AVIF images up to 5 MB each.");
+    }
+
+    const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const path = `${new Date().getUTCFullYear()}/${randomUUID()}.${extension}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, { contentType: file.type, upsert: false });
+    if (error) return fail(error.message);
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    uploaded.push(`${data.publicUrl}|${path}`);
+  }
+  return { success: uploaded.join("\n") };
 }

@@ -28,6 +28,7 @@ function productRow(row: Partial<StorefrontProductRow> = {}): StorefrontProductR
     stock_count: row.stock_count ?? 10,
     sku: row.sku ?? null,
     image_url: row.image_url ?? null,
+    image_urls: row.image_urls ?? [],
     material: row.material || "Marble dust finish",
     size: row.size || "6 inch",
     badge: row.badge || "New",
@@ -49,6 +50,17 @@ describe("storefront product merge", () => {
       slug: "admin-ganpati",
       name: "Admin Product"
     });
+  });
+
+  it("does not add the fallback logo to products that already have images", () => {
+    const [product] = databaseStorefrontProducts([
+      productRow({
+        image_url: "https://example.com/front.jpg",
+        image_urls: []
+      })
+    ]);
+
+    expect(product.images).toEqual(["https://example.com/front.jpg"]);
   });
 
   it("keeps the full catalog when only a small admin product set exists", () => {

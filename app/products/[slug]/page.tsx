@@ -1,8 +1,8 @@
-import Image from "next/image";
 import nextDynamic from "next/dynamic";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
+import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductPurchasePanel } from "@/components/ProductPurchasePanel";
 import {
@@ -52,7 +52,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const productReviews = await getApprovedProductReviews(product.id);
   const reviewCount = productReviews.length;
   const averageRating = reviewCount ? (productReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount).toFixed(1) : null;
-  const gallery = [product.image];
+  const gallery = product.images?.length ? product.images : [product.image];
   const storefrontProducts = await getStorefrontProducts();
   const relatedProducts = storefrontProducts.filter((item) => item.collection === product.collection && item.id !== product.id).slice(0, 5);
 
@@ -68,20 +68,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         ])
       ]} />
       <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
-        <div>
-          <div className="product-image-frame relative h-[420px] rounded-3xl border border-outline-variant bg-white shadow-card sm:h-[500px] md:h-[680px]">
-            <Image src={product.image} alt={product.name} fill priority fetchPriority="high" quality={78} sizes="(max-width:768px) 100vw, 50vw" className="object-contain p-3" />
-          </div>
-          {gallery.length > 1 ? (
-            <div className="mt-4 flex snap-x gap-3 overflow-x-auto pb-2" aria-label="Product gallery">
-              {gallery.map((image, index) => (
-                <div key={image} className="relative h-20 w-20 shrink-0 snap-start overflow-hidden rounded-2xl border border-outline-variant bg-white shadow-card md:h-24 md:w-24">
-                  <Image src={image} alt={`${product.name} gallery image ${index + 1}`} fill sizes="96px" quality={65} className="object-contain p-2" />
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
+        <ProductImageGallery images={gallery} productName={product.name} />
         <section className="self-center">
           <p className="section-kicker">{product.collection}</p>
           <h1 className="mt-3 text-5xl leading-tight text-primary md:text-6xl">{product.name}</h1>

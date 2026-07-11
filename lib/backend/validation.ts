@@ -14,6 +14,25 @@ function nullableText(value: unknown, max: number) {
   return text(value, max) || null;
 }
 
+function textList(value: unknown, maxItems: number, maxLength: number): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => textList(item, maxItems, maxLength)).slice(0, maxItems);
+  }
+  if (typeof value !== "string") return [];
+  const seen = new Set<string>();
+  return value
+    .split(/[\n,]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => item.slice(0, maxLength))
+    .filter((item) => {
+      if (seen.has(item)) return false;
+      seen.add(item);
+      return true;
+    })
+    .slice(0, maxItems);
+}
+
 function integer(value: unknown, minimum = 0) {
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed >= minimum ? parsed : null;
@@ -60,6 +79,7 @@ export function parseProduct(value: Record<string, unknown>): ProductMutation | 
     low_stock_threshold: lowStockThreshold,
     sku,
     image_url: nullableText(value.image_url, 1000),
+    image_urls: textList(value.image_urls, 12, 1000),
     image_path: nullableText(value.image_path, 500),
     material: text(value.material, 120),
     size: text(value.size, 120),
