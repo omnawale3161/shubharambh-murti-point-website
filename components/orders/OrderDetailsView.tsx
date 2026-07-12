@@ -27,8 +27,9 @@ export function OrderDetailsView({ order, token, success = false }: { order: Per
           <h2 className="text-2xl font-bold text-primary">Ordered Products</h2>
           <div className="mt-4 grid gap-4">{(order.order_items || []).map((item) => {
             const product = getProductById(item.productId);
+            const productImage = item.productImage || product?.image;
             return <article key={`${item.productId}-${item.giftBox}`} className="grid grid-cols-[80px_1fr] gap-4 border-t border-outline-variant pt-4">
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-container-low">{product ? <Image src={product.image} alt={item.productName} fill sizes="80px" className="object-contain p-1" /> : null}</div>
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-surface-container-low">{productImage ? <Image src={productImage} alt={item.productName} fill sizes="80px" className="object-contain p-1" /> : null}</div>
               <div><h3 className="font-bold">{item.productName}</h3><p className="mt-1 text-sm text-on-surface-variant">Quantity: {item.quantity}{item.giftBox ? " · Gift box included" : ""}</p><p className="mt-2 font-bold text-primary">{formatPrice((item.unitPricePaise * item.quantity) / 100)}</p></div>
             </article>;
           })}</div>

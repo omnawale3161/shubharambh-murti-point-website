@@ -15,6 +15,7 @@ export type OrderItem = {
   productId: string;
   productSlug?: string;
   productName: string;
+  productImage?: string;
   unitPricePaise: number;
   quantity: number;
   giftBox: boolean;

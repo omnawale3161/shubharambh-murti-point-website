@@ -25,14 +25,16 @@ export function CollectionBrowser({
   const visibleProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return products.filter((product) => {
-      const matchesCollection = collection ? product.collection === collection : true;
-      const matchesWishlist = wishlistOnly ? isWishlisted(product.id) : true;
-      const searchable = `${product.name} ${product.collection} ${product.size} ${product.material}`.toLowerCase();
-      const matchesQuery = normalizedQuery ? searchable.includes(normalizedQuery) : true;
+    return products
+      .filter((product) => {
+        const matchesCollection = collection ? product.collection === collection : true;
+        const matchesWishlist = wishlistOnly ? isWishlisted(product.id) : true;
+        const searchable = `${product.name} ${product.collection} ${product.size} ${product.material}`.toLowerCase();
+        const matchesQuery = normalizedQuery ? searchable.includes(normalizedQuery) : true;
 
-      return matchesCollection && matchesWishlist && matchesQuery;
-    });
+        return matchesCollection && matchesWishlist && matchesQuery;
+      })
+      .toSorted((first, second) => first.price - second.price || first.name.localeCompare(second.name));
   }, [collection, isWishlisted, products, query, wishlistOnly]);
 
   return (

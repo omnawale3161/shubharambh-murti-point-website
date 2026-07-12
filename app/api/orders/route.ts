@@ -81,6 +81,7 @@ export async function POST(request: Request) {
       productId: item.product.id,
       productSlug: item.product.slug,
       productName: item.product.name,
+      productImage: item.product.image,
       unitPricePaise: item.product.price * 100,
       quantity: item.quantity,
       giftBox: item.options.giftBox
